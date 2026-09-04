@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -95,9 +95,8 @@ function StatesPage() {
                   const band = performanceBand(s.titleRate);
                   const kids = districts.filter((d) => d.state === s.name);
                   return (
-                    <>
+                    <Fragment key={s.name}>
                       <tr
-                        key={s.name}
                         onClick={() => setExpanded(expanded === s.name ? null : s.name)}
                         className="cursor-pointer border-t border-border hover:bg-muted/50"
                       >
@@ -143,7 +142,7 @@ function StatesPage() {
                             <td />
                           </tr>
                         ))}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>
