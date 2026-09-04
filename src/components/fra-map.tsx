@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { RegionStat } from "@/data/analytics";
 
-const FraMapClient = lazy(() => import("./fra-map.client"));
+const FraMapClient = lazy(() => import("./fra-map-impl"));
 
 type Props = {
   states: RegionStat[];
