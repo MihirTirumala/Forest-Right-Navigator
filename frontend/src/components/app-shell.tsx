@@ -200,11 +200,6 @@ export function AppShell({
             </div>
           </header>
 
-          <div className="border-b border-amber-200 bg-amber-50 px-6 py-1.5 text-[11px] text-amber-900">
-            Demonstration environment — synthetic dataset. Outputs are decision support only and are not a
-            determination under the Forest Rights Act, 2006.
-          </div>
-
           <main className="min-w-0 flex-1 p-6">{children}</main>
         </div>
       </div>
