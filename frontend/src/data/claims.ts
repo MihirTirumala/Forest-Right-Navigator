@@ -62,7 +62,25 @@ function mulberry32(seed: number) {
 const FIRST_F = ["Sita", "Radha", "Phulmani", "Lakshmi", "Budhni", "Sukhmani", "Jamuna", "Kanchan", "Devki", "Sarita"];
 const FIRST_M = ["Ramlal", "Budhram", "Sukhdev", "Mangal", "Jaipal", "Hiralal", "Sonu", "Birsa", "Ganpat", "Dhansingh"];
 const LAST = ["Baiga", "Gond", "Bhil", "Munda", "Oraon", "Santhal", "Korku", "Kondh", "Warli", "Koya"];
-const COMMUNITIES = ["Gond", "Baiga", "Bhil", "Munda", "Oraon", "Santhal", "Kondh", "Warli", "Koya", "Korku"];
+const COMMUNITIES = [
+  "Gond",
+  "Baiga",
+  "Bhil",
+  "Munda",
+  "Oraon",
+  "Santhal",
+  "Kondh",
+  "Warli",
+  "Koya",
+  "Korku",
+  "Mina",
+  "Garasia",
+  "Jenu Kuruba",
+  "Kadar",
+  "Muthuvan",
+  "Lepcha",
+  "Tripuri",
+];
 const VILLAGE_A = ["Bara", "Chhota", "Nava", "Rani", "Dev", "Sal", "Mahua", "Kusum", "Tendu", "Amba"];
 const VILLAGE_B = ["pani", "gaon", "tola", "para", "khera", "beda", "guda", "palli", "toli", "dih"];
 const OFFICERS = [
@@ -95,6 +113,11 @@ const DISTRICT_PROFILE: Record<string, { reject: number; slow: number; sloppy: n
   Surguja: { reject: 0.3, slow: 0.45, sloppy: 0.22 },
   Koraput: { reject: 0.26, slow: 0.4, sloppy: 0.2 },
   Bastar: { reject: 0.12, slow: 0.2, sloppy: 0.08 },
+  Udaipur: { reject: 0.35, slow: 0.44, sloppy: 0.2 },
+  Wayanad: { reject: 0.1, slow: 0.18, sloppy: 0.06 },
+  Chamarajanagar: { reject: 0.22, slow: 0.35, sloppy: 0.16 },
+  Alipurduar: { reject: 0.28, slow: 0.42, sloppy: 0.2 },
+  Dhalai: { reject: 0.14, slow: 0.22, sloppy: 0.1 },
 };
 
 function profile(d: string) {
@@ -104,7 +127,7 @@ function profile(d: string) {
 function generate(): Claim[] {
   const r = mulberry32(20260904);
   const claims: Claim[] = [];
-  const total = 860;
+  const total = 1420;
 
   for (let i = 0; i < total; i++) {
     const geo = ALL_DISTRICTS[Math.floor(r() * ALL_DISTRICTS.length)]!;

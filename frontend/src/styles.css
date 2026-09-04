@@ -142,3 +142,25 @@
     color: var(--color-foreground);
   }
 }
+
+/* Leaflet FRA custom tooltips */
+.leaflet-tooltip.fra-state-tooltip {
+  background-color: rgba(255, 255, 255, 0.97);
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.18);
+  padding: 6px 10px;
+}
+.leaflet-tooltip.fra-state-tooltip::before {
+  border-top-color: #10b981;
+}
+.leaflet-tooltip.fra-district-tooltip {
+  background-color: rgba(255, 255, 255, 0.97);
+  border: 1px solid #059669;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(6, 78, 59, 0.22);
+  padding: 4px 8px;
+}
+.leaflet-tooltip.fra-district-tooltip::before {
+  border-top-color: #059669;
+}

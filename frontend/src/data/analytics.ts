@@ -109,6 +109,7 @@ export type RegionStat = {
   rejectionRate: number;
   avgDaysPending: number;
   flagged: number;
+  areaGranted: number;
   center: [number, number];
 };
 
@@ -125,6 +126,7 @@ function summarize(name: string, state: string, center: [number, number], claims
     rejectionRate: k.rejectionRate,
     avgDaysPending: k.avgDaysPending,
     flagged: k.flagged,
+    areaGranted: k.areaGranted,
     center,
   };
 }

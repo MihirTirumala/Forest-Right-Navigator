@@ -1,13 +1,49 @@
-import { MapContainer, TileLayer, Polygon, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
-import { STATES } from "@/data/geo";
+import type { PathOptions, Layer } from "leaflet";
 import type { RegionStat } from "@/data/analytics";
+import indiaGeoData from "@/data/india_states.json";
 
-function bandColor(rate: number) {
-  if (rate >= 30) return "#059669";
-  if (rate >= 20) return "#eab308";
-  return "#dc2626";
+// Precise geographic centers and recommended zoom for all Indian states and UTs
+const STATE_CENTERS: Record<string, { center: [number, number]; zoom: number }> = {
+  "Madhya Pradesh": { center: [23.97, 78.42], zoom: 6 },
+  "Odisha": { center: [20.19, 84.44], zoom: 6 },
+  "Chhattisgarh": { center: [20.94, 82.32], zoom: 6 },
+  "Jharkhand": { center: [23.65, 85.65], zoom: 7 },
+  "Maharashtra": { center: [18.82, 76.78], zoom: 6 },
+  "Telangana": { center: [17.88, 79.28], zoom: 7 },
+  "Gujarat": { center: [22.42, 71.29], zoom: 6 },
+  "Andhra Pradesh": { center: [15.9, 80.76], zoom: 6 },
+  "Rajasthan": { center: [26.63, 73.88], zoom: 6 },
+  "Karnataka": { center: [15.02, 76.34], zoom: 6 },
+  "West Bengal": { center: [24.35, 87.85], zoom: 6 },
+  "Kerala": { center: [10.54, 76.14], zoom: 7 },
+  "Tripura": { center: [23.74, 91.74], zoom: 8 },
+  "Assam": { center: [26.05, 92.86], zoom: 6 },
+  "Arunachal Pradesh": { center: [28.06, 94.48], zoom: 6 },
+  "Bihar": { center: [25.9, 85.8], zoom: 6 },
+  "Goa": { center: [15.35, 74.01], zoom: 9 },
+  "Himachal Pradesh": { center: [31.82, 77.3], zoom: 7 },
+  "Jammu & Kashmir": { center: [33.7, 75.09], zoom: 6 },
+  "Ladakh": { center: [34.71, 76.43], zoom: 6 },
+  "Manipur": { center: [24.76, 93.87], zoom: 8 },
+  "Meghalaya": { center: [25.57, 91.31], zoom: 8 },
+  "Mizoram": { center: [23.23, 92.85], zoom: 8 },
+  "Nagaland": { center: [26.12, 94.28], zoom: 8 },
+  "Punjab": { center: [31.03, 75.41], zoom: 7 },
+  "Sikkim": { center: [27.6, 88.47], zoom: 8 },
+  "Tamil Nadu": { center: [10.82, 78.29], zoom: 6 },
+  "Uttar Pradesh": { center: [27.14, 80.86], zoom: 6 },
+  "Uttarakhand": { center: [30.09, 79.31], zoom: 7 },
+  "Haryana": { center: [29.29, 76.04], zoom: 7 },
+  "Delhi": { center: [28.64, 77.09], zoom: 9 },
+};
+
+function districtFillColor(rate: number) {
+  if (rate >= 30) return "#047857";
+  if (rate >= 20) return "#059669";
+  return "#10b981";
 }
 
 function Recenter({ center, zoom }: { center: [number, number]; zoom: number }) {
@@ -31,72 +67,162 @@ export default function FraMapClient({
   onSelectState: (name: string | null) => void;
   onSelectDistrict: (name: string) => void;
 }) {
-  const focus = selectedState ? STATES.find((s) => s.state === selectedState) : null;
-  const center: [number, number] = focus ? focus.center : [21.5, 80.0];
-  const zoom = focus ? 6 : 5;
+  const focus = selectedState ? STATE_CENTERS[selectedState] : null;
+  const center: [number, number] = focus ? focus.center : [22.8, 80.5];
+  const zoom = focus ? focus.zoom : 5;
+
+  const getFeatureStyle = (feature: any): PathOptions => {
+    const stateName = feature?.properties?.ST_NM;
+    const stat = states.find((x) => x.name === stateName);
+    const isSel = selectedState === stateName;
+
+    if (isSel) {
+      return {
+        color: "#022c22",
+        weight: 3.5,
+        opacity: 1,
+        fillColor: "#047857",
+        fillOpacity: 0.65,
+      };
+    }
+
+    if (stat) {
+      const rate = stat.titleRate;
+      let fill = "#34d399";
+      let border = "#059669";
+      if (rate >= 30) {
+        fill = "#047857";
+        border = "#064e3b";
+      } else if (rate >= 20) {
+        fill = "#10b981";
+        border = "#047857";
+      }
+      return {
+        color: border,
+        weight: 1.8,
+        opacity: 0.95,
+        fillColor: fill,
+        fillOpacity: 0.42,
+      };
+    }
+
+    // Other states in India: Soft sage wash with distinct administrative border
+    return {
+      color: "#059669",
+      weight: 1.2,
+      opacity: 0.75,
+      fillColor: "#a7f3d0",
+      fillOpacity: 0.16,
+    };
+  };
+
+  const onEachFeature = (feature: any, layer: Layer) => {
+    const stateName = feature?.properties?.ST_NM;
+    const stat = states.find((x) => x.name === stateName);
+    const isSel = selectedState === stateName;
+
+    const tooltipHtml = `
+      <div style="font-family: ui-sans-serif, system-ui, sans-serif; min-width: 175px; padding: 2px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d1fae5; padding-bottom: 4px; margin-bottom: 5px;">
+          <span style="font-weight: 700; color: #064e3b; font-size: 13px;">${stateName}</span>
+          ${stat ? `<span style="background-color: #d1fae5; color: #047857; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 9999px;">${stat.titleRate.toFixed(1)}% Titled</span>` : `<span style="color: #6b7280; font-size: 10px;">Territory</span>`}
+        </div>
+        ${stat ? `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; color: #065f46;">
+            <div>Total Claims: <b>${(stat.total ?? 0).toLocaleString()}</b></div>
+            <div>Titled: <b>${(stat.titled ?? 0).toLocaleString()}</b></div>
+            <div>Area Titled: <b>${Math.round(stat.areaGranted ?? 0).toLocaleString()} ha</b></div>
+            <div>Anomalies: <b style="color: ${(stat.flagged ?? 0) > 0 ? '#b45309' : '#059669'}">${stat.flagged ?? 0}</b></div>
+          </div>
+          <div style="margin-top: 6px; font-size: 10px; color: #047857; font-weight: 600; text-align: center; background: #ecfdf5; padding: 2px 4px; border-radius: 4px;">
+            ${isSel ? '✓ Filtered — Click to show all' : 'Click to filter dashboard'}
+          </div>
+        ` : `
+          <div style="font-size: 11px; color: #4b5563;">Official administrative boundary. No active demo claims registered.</div>
+        `}
+      </div>
+    `;
+
+    layer.bindTooltip(tooltipHtml, {
+      sticky: true,
+      direction: "auto",
+      opacity: 0.98,
+      className: "fra-state-tooltip",
+    });
+
+    layer.on({
+      click: () => {
+        onSelectState(isSel ? null : stateName);
+      },
+      mouseover: (e: any) => {
+        const l = e.target;
+        l.setStyle({
+          weight: 3,
+          color: "#022c22",
+          fillOpacity: 0.65,
+        });
+        if (typeof l.bringToFront === "function") {
+          l.bringToFront();
+        }
+      },
+      mouseout: (e: any) => {
+        const l = e.target;
+        l.setStyle(getFeatureStyle(feature));
+      },
+    });
+  };
 
   return (
     <MapContainer
       center={center}
       zoom={zoom}
       scrollWheelZoom
-      style={{ height: "100%", width: "100%", borderRadius: "0.5rem" }}
+      style={{ height: "100%", width: "100%", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}
     >
       <Recenter center={center} zoom={zoom} />
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
 
-      {STATES.map((s) => {
-        const stat = states.find((x) => x.name === s.state);
-        const rate = stat?.titleRate ?? 0;
-        const isSel = selectedState === s.state;
-        return (
-          <Polygon
-            key={s.state}
-            positions={s.ring}
-            pathOptions={{
-              color: isSel ? "#0f766e" : bandColor(rate),
-              weight: isSel ? 3 : 1.5,
-              fillColor: bandColor(rate),
-              fillOpacity: stat ? (isSel ? 0.45 : 0.28) : 0.08,
-            }}
-            eventHandlers={{ click: () => onSelectState(isSel ? null : s.state) }}
-          >
-            <Tooltip sticky>
-              <span className="text-xs">
-                <strong>{s.state}</strong>
-                <br />
-                {stat ? `${stat.total} claims · ${stat.titleRate.toFixed(1)}% titled` : "no claims in filter"}
-              </span>
-            </Tooltip>
-          </Polygon>
-        );
-      })}
+      <GeoJSON
+        key={`india-geojson-${selectedState ?? "all"}-${states.length}`}
+        data={indiaGeoData as any}
+        style={getFeatureStyle}
+        onEachFeature={onEachFeature}
+      />
 
       {districts.map((d) => (
         <CircleMarker
           key={d.name}
           center={d.center}
-          radius={Math.max(6, Math.min(20, Math.sqrt(d.total) * 1.8))}
+          radius={Math.max(7, Math.min(22, Math.sqrt(d.total) * 1.9))}
+          pane="markerPane"
           pathOptions={{
             color: "#ffffff",
-            weight: 1.5,
-            fillColor: bandColor(d.titleRate),
-            fillOpacity: 0.85,
+            weight: 2,
+            fillColor: districtFillColor(d.titleRate),
+            fillOpacity: 0.9,
           }}
           eventHandlers={{ click: () => onSelectDistrict(d.name) }}
         >
-          <Tooltip>
-            <span className="text-xs">
-              <strong>{d.name}</strong>
-              <br />
-              {d.total} claims · {d.titleRate.toFixed(1)}% titled · {d.flagged} flagged
-            </span>
+          <Tooltip sticky className="fra-district-tooltip">
+            <div style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", padding: "2px", minWidth: "155px" }}>
+              <div style={{ fontWeight: 700, color: "#064e3b", fontSize: "12px", display: "flex", justifyContent: "space-between" }}>
+                <span>{d.name} District</span>
+                <span style={{ color: "#047857", fontWeight: 600 }}>{d.titleRate.toFixed(1)}%</span>
+              </div>
+              <div style={{ fontSize: "11px", color: "#065f46", marginTop: "3px" }}>
+                {(d.total ?? 0).toLocaleString()} claims · {d.flagged ?? 0} flagged
+              </div>
+              <div style={{ marginTop: "4px", fontSize: "10px", color: "#059669", fontWeight: 600 }}>
+                Click to inspect district claims
+              </div>
+            </div>
           </Tooltip>
         </CircleMarker>
       ))}
     </MapContainer>
   );
 }
+

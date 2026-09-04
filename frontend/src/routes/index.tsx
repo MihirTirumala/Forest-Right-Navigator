@@ -31,6 +31,7 @@ import { useFilters } from "@/lib/filter-store";
 import { districtStats, monthlyTrend, stateStats, statusBreakdown, typeBreakdown } from "@/data/analytics";
 import { generateInsights } from "@/data/insights";
 import { CLAIM_TYPE_LABEL } from "@/data/claims";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -257,29 +258,90 @@ function Dashboard() {
         <div className="grid gap-4 xl:grid-cols-2">
           <SectionCard
             title="State scoreboard"
-            description="Ranked by title conversion within current filters"
+            description="Claims conversion, pending stages and granted area by state"
             action={
               <Link to="/states" className="text-xs font-medium text-primary hover:underline">
-                Detail →
+                View All ({states.length}) →
               </Link>
             }
           >
-            <ul className="space-y-2">
-              {states.slice(0, 6).map((s) => (
-                <li key={s.name} className="flex items-center gap-3 text-sm">
-                  <span className="w-40 truncate text-foreground">{s.name}</span>
-                  <span className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <span
-                      className="block h-full rounded-full bg-primary"
-                      style={{ width: `${Math.min(100, s.titleRate * 2)}%` }}
-                    />
-                  </span>
-                  <span className="w-12 text-right tabular-nums text-muted-foreground">
-                    {s.titleRate.toFixed(0)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+              {states.slice(0, 8).map((s, idx) => {
+                const isSelected = filters.states.includes(s.name);
+                return (
+                  <div
+                    key={s.name}
+                    onClick={() => update("states", isSelected ? [] : [s.name])}
+                    className={cn(
+                      "group cursor-pointer rounded-lg border p-2.5 transition-all hover:border-primary/40 hover:bg-accent/40",
+                      isSelected
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                        : "border-border bg-card",
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
+                          #{idx + 1}
+                        </span>
+                        <span className="truncate font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
+                          {s.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                          {s.titleRate.toFixed(1)}% Titled
+                        </span>
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {s.total} claims
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Tri-color conversion bar: Green (Titled), Amber (Pending), Red (Rejected) */}
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted flex">
+                      <span
+                        title={`Titled: ${s.titled} (${s.titleRate.toFixed(1)}%)`}
+                        style={{ width: `${s.titleRate}%` }}
+                        className="h-full bg-emerald-600 transition-all duration-300"
+                      />
+                      <span
+                        title={`Pending: ${s.pending}`}
+                        style={{ width: `${s.total > 0 ? (s.pending / s.total) * 100 : 0}%` }}
+                        className="h-full bg-amber-500 transition-all duration-300"
+                      />
+                      <span
+                        title={`Rejected: ${s.rejected} (${s.rejectionRate.toFixed(1)}%)`}
+                        style={{ width: `${s.rejectionRate}%` }}
+                        className="h-full bg-red-500 transition-all duration-300"
+                      />
+                    </div>
+
+                    {/* Detailed State Claims Metrics */}
+                    <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] sm:grid-cols-4 text-muted-foreground">
+                      <div>
+                        <span className="text-muted-foreground/70">Granted: </span>
+                        <span className="font-medium text-foreground">{s.titled}</span> ({(s.areaGranted ?? 0).toLocaleString()} ha)
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground/70">Pending: </span>
+                        <span className="font-medium text-foreground">{s.pending}</span> ({s.avgDaysPending}d avg)
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground/70">Rejected: </span>
+                        <span className="font-medium text-red-600">{s.rejected}</span> ({s.rejectionRate.toFixed(0)}%)
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground/70">Anomalies: </span>
+                        <span className={cn("font-medium", s.flagged > 0 ? "text-amber-600 font-semibold" : "text-foreground")}>
+                          {s.flagged} flagged
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </SectionCard>
 
           <SectionCard

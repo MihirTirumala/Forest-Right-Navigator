@@ -43,14 +43,21 @@ function InsightsPage() {
   const insights = useMemo(() => generateInsights(claims), [claims]);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   function ask(q: string) {
     if (!q.trim()) return;
     const a = answerQuestion(q, claims);
     setTurns((t) => [...t, { q, a: a.text, evidence: a.evidence }]);
     setInput("");
-    setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 30);
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }, 30);
   }
 
   return (
@@ -70,29 +77,6 @@ function InsightsPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-2">
-          {insights.map((i) => (
-            <SectionCard
-              key={i.id}
-              title={i.title}
-              description={`Severity: ${i.severity}`}
-              action={<Sparkles className="size-4 text-primary" />}
-            >
-              <p className="text-sm leading-relaxed text-foreground">{i.body}</p>
-              <div className="mt-3 rounded-lg bg-muted/60 p-3">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Evidence
-                </p>
-                <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                  {i.evidence.map((e, idx) => (
-                    <li key={idx}>• {e}</li>
-                  ))}
-                </ul>
-              </div>
-            </SectionCard>
-          ))}
-        </div>
-
         <SectionCard
           title="Ask the assistant"
           description={`Answers are computed live from the ${claims.length.toLocaleString()} claims in view`}
@@ -100,6 +84,7 @@ function InsightsPage() {
           <div className="mb-3 flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
               <button
+                type="button"
                 key={s}
                 onClick={() => ask(s)}
                 className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground"
@@ -109,7 +94,7 @@ function InsightsPage() {
             ))}
           </div>
 
-          <div className="max-h-96 space-y-3 overflow-y-auto pr-1">
+          <div ref={chatContainerRef} className="max-h-96 space-y-3 overflow-y-auto pr-1">
             {turns.length === 0 && (
               <p className="rounded-lg bg-muted/60 p-4 text-sm text-muted-foreground">
                 Ask about delays, rejections, anomalies, state comparisons, community claims, women claimants
@@ -135,7 +120,6 @@ function InsightsPage() {
                 </div>
               </div>
             ))}
-            <div ref={endRef} />
           </div>
 
           <form
@@ -162,6 +146,29 @@ function InsightsPage() {
             </button>
           </form>
         </SectionCard>
+
+        <div className="grid gap-4 xl:grid-cols-2">
+          {insights.map((i) => (
+            <SectionCard
+              key={i.id}
+              title={i.title}
+              description={`Severity: ${i.severity}`}
+              action={<Sparkles className="size-4 text-primary" />}
+            >
+              <p className="text-sm leading-relaxed text-foreground">{i.body}</p>
+              <div className="mt-3 rounded-lg bg-muted/60 p-3">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Evidence
+                </p>
+                <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                  {i.evidence.map((e, idx) => (
+                    <li key={idx}>• {e}</li>
+                  ))}
+                </ul>
+              </div>
+            </SectionCard>
+          ))}
+        </div>
       </div>
     </AppShell>
   );
