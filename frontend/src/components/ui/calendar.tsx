@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import * as React from "react";
-
-export function Calendar({ className }: { className?: string }) {
-  return <div className={className}>Calendar</div>;
-}
-=======
 "use client";
 
 import * as React from "react";
@@ -182,4 +175,3 @@ function CalendarDayButton({
 }
 
 export { Calendar, CalendarDayButton };
->>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
