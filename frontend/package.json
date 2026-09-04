@@ -4,8 +4,20 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
     "dev": "vite --port 5173",
     "build": "vite build"
+=======
+    "dev": "vite dev",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "overrides": {
+    "rolldown": "1.2.1"
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -81,6 +93,10 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
+<<<<<<< HEAD
     "vite": "^6.2.0"
+=======
+    "vite": "8.1.5"
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
   }
 }

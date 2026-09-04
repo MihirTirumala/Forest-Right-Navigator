@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bot, CheckCircle, RefreshCw, ShieldAlert, ShieldQuestion, Sparkles } from "lucide-react";
+=======
+import { useMemo, useState } from "react";
+import { AlertTriangle, ShieldQuestion } from "lucide-react";
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
 import { AppShell } from "@/components/app-shell";
 import { FilterBar } from "@/components/filter-bar";
 import { ClaimDetail } from "@/components/claim-detail";
@@ -10,7 +15,10 @@ import { RULES, RULE_BY_CODE } from "@/data/anomalies";
 import { flagsForClaims } from "@/data/analytics";
 import type { Claim } from "@/data/claims";
 import { cn } from "@/lib/utils";
+<<<<<<< HEAD
 import { fetchDistrictAiAudit, type DistrictAiAudit } from "@/lib/api-client";
+=======
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
 
 export const Route = createFileRoute("/anomalies")({
   head: () => ({
@@ -37,6 +45,7 @@ const SEV_TONE: Record<string, string> = {
   low: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
+<<<<<<< HEAD
 const DISTRICT_PROFILES = [
   { state: "Maharashtra", district: "Gadchiroli" },
   { state: "Odisha", district: "Sundargarh" },
@@ -46,11 +55,14 @@ const DISTRICT_PROFILES = [
   { state: "Jharkhand", district: "Paschim Singhbhum" },
 ];
 
+=======
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
 function AnomaliesPage() {
   const { claims } = useFilters();
   const [ruleFilter, setRuleFilter] = useState<string | null>(null);
   const [selected, setSelected] = useState<Claim | null>(null);
 
+<<<<<<< HEAD
   // AI Audit State
   const [activeProfile, setActiveProfile] = useState<{ state: string; district: string }>(DISTRICT_PROFILES[0]!);
   const [aiAudit, setAiAudit] = useState<DistrictAiAudit | null>(null);
@@ -73,6 +85,8 @@ function AnomaliesPage() {
     }
   }, [activeProfile]);
 
+=======
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
   const flags = useMemo(() => flagsForClaims(claims), [claims]);
   const byRule = useMemo(
     () => RULES.map((r) => ({ rule: r, hits: flags.filter((f) => f.code === r.code) })),
@@ -84,12 +98,18 @@ function AnomaliesPage() {
 
   return (
     <AppShell
+<<<<<<< HEAD
       title="Anomaly Review & AI Audit Engine"
       subtitle="Rule-based anomaly checks combined with live Groq LLM executive compliance synthesis"
+=======
+      title="Anomaly Review"
+      subtitle="Deterministic rules over the claim register — advisory prompts, never determinations"
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
     >
       <div className="space-y-5">
         <FilterBar compact />
 
+<<<<<<< HEAD
         {/* Live Groq AI District Audit Card */}
         <SectionCard
           title="🤖 Live Groq AI District Compliance Auditor"
@@ -228,6 +248,8 @@ function AnomaliesPage() {
           )}
         </SectionCard>
 
+=======
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <KpiCard label="Rule hits" value={flags.length.toLocaleString()} icon={AlertTriangle} tone="bad" />
           <KpiCard label="Claims affected" value={distinct.toLocaleString()} icon={ShieldQuestion} tone="warn" />
