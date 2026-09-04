@@ -143,7 +143,17 @@
   }
 }
 
-/* Leaflet FRA custom tooltips */
+/* Leaflet FRA custom tooltips - strictly non-interactive to prevent hover oscillation */
+.leaflet-tooltip,
+.leaflet-tooltip *,
+.leaflet-tooltip.fra-state-tooltip,
+.leaflet-tooltip.fra-state-tooltip *,
+.leaflet-tooltip.fra-district-tooltip,
+.leaflet-tooltip.fra-district-tooltip * {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
 .leaflet-tooltip.fra-state-tooltip {
   background-color: rgba(255, 255, 255, 0.97);
   border: 1px solid #10b981;

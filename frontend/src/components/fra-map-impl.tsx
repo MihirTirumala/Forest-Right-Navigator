@@ -49,9 +49,25 @@ function districtFillColor(rate: number) {
 function Recenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   const [lat, lng] = center;
+  const initializedRef = useRef(false);
+  const lastTarget = useRef({ lat, lng, zoom });
+
   useEffect(() => {
-    map.setView([lat, lng], zoom, { animate: true });
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      lastTarget.current = { lat, lng, zoom };
+      return;
+    }
+    if (
+      lastTarget.current.lat !== lat ||
+      lastTarget.current.lng !== lng ||
+      lastTarget.current.zoom !== zoom
+    ) {
+      lastTarget.current = { lat, lng, zoom };
+      map.flyTo([lat, lng], zoom, { duration: 0.8 });
+    }
   }, [lat, lng, zoom, map]);
+
   return null;
 }
 
@@ -131,7 +147,7 @@ export default function FraMapClient({
 
   // Smooth in-place style updates without tearing down or remounting GeoJSON layers
   useEffect(() => {
-    if (geoJsonRef.current) {
+    if (geoJsonRef.current && typeof geoJsonRef.current.setStyle === "function") {
       geoJsonRef.current.setStyle(getFeatureStyle);
     }
   }, [selectedState, states, getFeatureStyle]);
@@ -163,7 +179,7 @@ export default function FraMapClient({
     `;
 
     layer.bindTooltip(tooltipHtml, {
-      sticky: true,
+      sticky: false,
       direction: "auto",
       opacity: 0.98,
       className: "fra-state-tooltip",
@@ -176,15 +192,19 @@ export default function FraMapClient({
       },
       mouseover: (e: any) => {
         const l = e.target;
-        l.setStyle({
-          weight: 3,
-          color: "#022c22",
-          fillOpacity: 0.65,
-        });
+        if (l && typeof l.setStyle === "function") {
+          l.setStyle({
+            weight: 3,
+            color: "#022c22",
+            fillOpacity: 0.65,
+          });
+        }
       },
       mouseout: (e: any) => {
         const l = e.target;
-        l.setStyle(getFeatureStyle(feature));
+        if (l && typeof l.setStyle === "function") {
+          l.setStyle(getFeatureStyle(feature));
+        }
       },
     });
   }, [getFeatureStyle]);
@@ -194,6 +214,7 @@ export default function FraMapClient({
       center={center}
       zoom={zoom}
       scrollWheelZoom
+      preferCanvas={true}
       style={{ height: "100%", width: "100%", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}
     >
       <Recenter center={center} zoom={zoom} />
@@ -224,7 +245,7 @@ export default function FraMapClient({
           }}
           eventHandlers={{ click: () => onSelectDistrict(d.name) }}
         >
-          <Tooltip sticky className="fra-district-tooltip">
+          <Tooltip sticky={false} direction="top" offset={[0, -10]} className="fra-district-tooltip">
             <div style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", padding: "2px", minWidth: "155px" }}>
               <div style={{ fontWeight: 700, color: "#064e3b", fontSize: "12px", display: "flex", justifyContent: "space-between" }}>
                 <span>{d.name} District</span>
