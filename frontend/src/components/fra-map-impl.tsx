@@ -81,15 +81,38 @@ function PinchOnlyZoom() {
 
   useEffect(() => {
     const container = map.getContainer();
+
+    // Ensure touchZoom is explicitly active for touchscreens
+    if (map.touchZoom && !map.touchZoom.enabled()) {
+      map.touchZoom.enable();
+    }
+
+    let accumulatedDelta = 0;
+    let rafId: number | null = null;
+
     const handleWheel = (e: WheelEvent) => {
-      // Browsers flag trackpad pinch-to-zoom gestures with ctrlKey: true
+      // Trackpad pinch-to-zoom gestures set e.ctrlKey: true in modern browsers (Chrome, Edge, Firefox)
       if (e.ctrlKey) {
         e.preventDefault();
-        const delta = -e.deltaY;
-        if (delta > 0) {
-          map.zoomIn(0.25);
-        } else if (delta < 0) {
-          map.zoomOut(0.25);
+        e.stopPropagation();
+
+        // Proportional zoom factor
+        const factor = e.deltaMode === 1 ? 0.05 : 0.015;
+        accumulatedDelta -= e.deltaY * factor;
+
+        if (!rafId) {
+          rafId = requestAnimationFrame(() => {
+            const currentZoom = map.getZoom();
+            const minZ = map.getMinZoom() || 3;
+            const maxZ = map.getMaxZoom() || 18;
+            const targetZoom = Math.max(minZ, Math.min(maxZ, currentZoom + accumulatedDelta));
+            accumulatedDelta = 0;
+            rafId = null;
+
+            // Zoom smoothly toward the mouse pointer position
+            const mouseLatLng = map.mouseEventToLatLng(e);
+            map.setZoomAround(mouseLatLng, targetZoom, { animate: false });
+          });
         }
       }
       // When ctrlKey is false (normal vertical mouse wheel or 2-finger scroll),
@@ -99,6 +122,7 @@ function PinchOnlyZoom() {
     container.addEventListener("wheel", handleWheel, { passive: false });
     return () => {
       container.removeEventListener("wheel", handleWheel);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [map]);
 
@@ -247,6 +271,8 @@ export default function FraMapClient({
     <MapContainer
       center={center}
       zoom={zoom}
+      zoomSnap={0}
+      zoomDelta={0.5}
       scrollWheelZoom={false}
       touchZoom={true}
       preferCanvas={true}
