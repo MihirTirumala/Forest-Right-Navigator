@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnomaliesRouteImport } from './routes/anomalies'
 import { Route as ClaimsRouteImport } from './routes/claims'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as StatesRouteImport } from './routes/states'
 
@@ -30,6 +31,11 @@ const ClaimsRoute = ClaimsRouteImport.update({
   path: '/claims',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
   '/claims': typeof ClaimsRoute
+  '/dashboard': typeof DashboardRoute
   '/insights': typeof InsightsRoute
   '/states': typeof StatesRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
   '/claims': typeof ClaimsRoute
+  '/dashboard': typeof DashboardRoute
   '/insights': typeof InsightsRoute
   '/states': typeof StatesRoute
 }
@@ -60,21 +68,31 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/anomalies': typeof AnomaliesRoute
   '/claims': typeof ClaimsRoute
+  '/dashboard': typeof DashboardRoute
   '/insights': typeof InsightsRoute
   '/states': typeof StatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/anomalies' | '/claims' | '/insights' | '/states'
+  fullPaths:
+    '/' | '/anomalies' | '/claims' | '/dashboard' | '/insights' | '/states'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/anomalies' | '/claims' | '/insights' | '/states'
-  id: '__root__' | '/' | '/anomalies' | '/claims' | '/insights' | '/states'
+  to: '/' | '/anomalies' | '/claims' | '/dashboard' | '/insights' | '/states'
+  id:
+    | '__root__'
+    | '/'
+    | '/anomalies'
+    | '/claims'
+    | '/dashboard'
+    | '/insights'
+    | '/states'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnomaliesRoute: typeof AnomaliesRoute
   ClaimsRoute: typeof ClaimsRoute
+  DashboardRoute: typeof DashboardRoute
   InsightsRoute: typeof InsightsRoute
   StatesRoute: typeof StatesRoute
 }
@@ -102,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClaimsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/insights': {
       id: '/insights'
       path: '/insights'
@@ -123,19 +148,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnomaliesRoute: AnomaliesRoute,
   ClaimsRoute: ClaimsRoute,
+  DashboardRoute: DashboardRoute,
   InsightsRoute: InsightsRoute,
   StatesRoute: StatesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

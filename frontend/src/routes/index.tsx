@@ -1,387 +1,155 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import {
-  AlertTriangle,
-  Clock,
-  FileText,
-  Landmark,
-  ScrollText,
-  ShieldCheck,
-  TrendingUp,
-} from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip as RTooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { AppShell } from "@/components/app-shell";
-import { FilterBar } from "@/components/filter-bar";
-import { KpiCard, SectionCard } from "@/components/kpi-card";
-import { FraMap, MapLegend } from "@/components/fra-map";
-import { useFilters } from "@/lib/filter-store";
-import { districtStats, monthlyTrend, stateStats, statusBreakdown, typeBreakdown } from "@/data/analytics";
-import { generateInsights } from "@/data/insights";
-import { CLAIM_TYPE_LABEL } from "@/data/claims";
-import { cn } from "@/lib/utils";
+import { TreePine, ArrowRight, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
+import { ThemeToggle } from "@/components/app-shell";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "FRA Monitor — Forest Rights Act Decision Support Dashboard" },
-      {
-        name: "description",
-        content:
-          "Monitor Forest Rights Act claims across states and districts: KPIs, GIS map, anomaly flags and data-grounded advisory insights.",
-      },
-      { property: "og:title", content: "FRA Monitor — Forest Rights Act Decision Support Dashboard" },
-      {
-        property: "og:description",
-        content:
-          "Claim throughput, district bottlenecks, rule-based anomaly flags and advisory insights for FRA implementation.",
-      },
-    ],
-  }),
-  component: Dashboard,
+  component: LandingPage,
 });
 
-const TYPE_COLORS = ["#166534", "#0d9488", "#a16207"];
-
-function Dashboard() {
-  const { claims, kpis, filters, update } = useFilters();
-  const [panelDistrict, setPanelDistrict] = useState<string | null>(null);
-
-  const districts = useMemo(() => districtStats(claims), [claims]);
-  const states = useMemo(() => stateStats(claims), [claims]);
-  const trend = useMemo(() => monthlyTrend(claims), [claims]);
-  const statuses = useMemo(() => statusBreakdown(claims), [claims]);
-  const types = useMemo(() => typeBreakdown(claims), [claims]);
-  const insights = useMemo(() => generateInsights(claims).slice(0, 3), [claims]);
-  const panel = districts.find((d) => d.name === panelDistrict);
-
+function LandingPage() {
   return (
-    <AppShell
-      title="Implementation Dashboard"
-      subtitle="Forest Rights Act, 2006 — claim throughput, geography and risk signals"
-    >
-      <div className="space-y-5">
-        <FilterBar />
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <KpiCard label="Claims in view" value={kpis.total.toLocaleString()} icon={FileText} hint={`${kpis.pending} still in process`} />
-          <KpiCard
-            label="Title conversion"
-            value={`${kpis.titleRate.toFixed(1)}%`}
-            icon={ShieldCheck}
-            tone="good"
-            hint={`${kpis.titled.toLocaleString()} titles recorded`}
-          />
-          <KpiCard
-            label="Avg days in stage"
-            value={`${kpis.avgDaysPending}`}
-            icon={Clock}
-            tone={kpis.avgDaysPending > 300 ? "bad" : "warn"}
-            hint={`${kpis.overdue} static beyond 365 days`}
-          />
-          <KpiCard
-            label="Flagged claims"
-            value={kpis.flagged.toLocaleString()}
-            icon={AlertTriangle}
-            tone="bad"
-            hint="Rule matches needing human review"
-          />
-        </div>
-
-        <div className="grid gap-4 xl:grid-cols-3">
-          <SectionCard
-            title="Geographic view"
-            description="Click a state polygon to focus, a district circle to open its panel."
-            className="xl:col-span-2"
-          >
-            <div className="h-[420px] overflow-hidden rounded-lg border border-border">
-              <FraMap
-                states={states}
-                districts={districts}
-                selectedState={filters.states[0] ?? null}
-                onSelectState={(name) => {
-                  update("states", name ? [name] : []);
-                  update("districts", []);
-                  setPanelDistrict(null);
-                }}
-                onSelectDistrict={(name) => setPanelDistrict(name)}
-              />
-            </div>
-            <div className="mt-3">
-              <MapLegend />
-            </div>
-          </SectionCard>
-
-          <div className="space-y-4">
-            <SectionCard
-              title={panel ? `${panel.name} district` : "District panel"}
-              description={panel ? `${panel.state}` : "Select a district on the map"}
-              action={
-                panel ? (
-                  <button
-                    onClick={() => {
-                      update("districts", [panel.name]);
-                      update("states", [panel.state]);
-                    }}
-                    className="rounded-md bg-primary px-2.5 py-1 text-xs text-primary-foreground"
-                  >
-                    Filter to district
-                  </button>
-                ) : null
-              }
-            >
-              {panel ? (
-                <div className="space-y-3 text-sm">
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      ["Claims", panel.total.toLocaleString()],
-                      ["Titled", `${panel.titled} (${panel.titleRate.toFixed(1)}%)`],
-                      ["Rejected", `${panel.rejected} (${panel.rejectionRate.toFixed(1)}%)`],
-                      ["Avg days in stage", `${panel.avgDaysPending}`],
-                      ["Pending", `${panel.pending}`],
-                      ["Flagged", `${panel.flagged}`],
-                    ].map(([l, v]) => (
-                      <div key={l} className="rounded-lg bg-muted/60 p-3">
-                        <p className="text-[11px] text-muted-foreground">{l}</p>
-                        <p className="font-semibold text-foreground">{v}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <Link
-                    to="/claims"
-                    onClick={() => {
-                      update("states", [panel.state]);
-                      update("districts", [panel.name]);
-                    }}
-                    className="inline-block text-xs font-medium text-primary underline-offset-2 hover:underline"
-                  >
-                    Open the claim register for {panel.name} →
-                  </Link>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Circle size reflects claim volume; colour reflects title conversion.
-                </p>
-              )}
-            </SectionCard>
-
-            <SectionCard title="Claims by type">
-              <div className="h-44">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={types} dataKey="count" nameKey="type" innerRadius={38} outerRadius={64}>
-                      {types.map((_, i) => (
-                        <Cell key={i} fill={TYPE_COLORS[i]} />
-                      ))}
-                    </Pie>
-                    <RTooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                {types.map((t, i) => (
-                  <li key={t.type} className="flex items-center gap-2">
-                    <span className="size-2.5 rounded-full" style={{ background: TYPE_COLORS[i] }} />
-                    {CLAIM_TYPE_LABEL[t.type]} — {t.count}
-                  </li>
-                ))}
-              </ul>
-            </SectionCard>
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 flex flex-col font-sans">
+      {/* Navigation Bar */}
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border/50 bg-background/80">
+        <div className="flex items-center gap-2 font-semibold">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
+            <TreePine className="size-4" />
           </div>
+          <span>FRA Monitor</span>
         </div>
-
-        <div className="grid gap-4 xl:grid-cols-2">
-          <SectionCard title="Claims pipeline" description="Volume at each stage of the statutory process">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={statuses} margin={{ left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis dataKey="status" tick={{ fontSize: 10 }} interval={0} angle={-18} textAnchor="end" height={60} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <RTooltip />
-                  <Bar dataKey="count" fill="#166534" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Submissions and titles over time" description="Monthly, last 24 months in scope">
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={trend} margin={{ left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <RTooltip />
-                  <Area type="monotone" dataKey="submitted" stroke="#0d9488" fill="#0d948833" />
-                  <Area type="monotone" dataKey="titled" stroke="#166534" fill="#16653433" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </SectionCard>
-        </div>
-
-        <SectionCard
-          title="Advisory insights"
-          description="Generated from the filtered dataset — for human review, not decision-making"
-          action={
-            <Link to="/insights" className="text-xs font-medium text-primary hover:underline">
-              All insights →
-            </Link>
-          }
-        >
-          <div className="grid gap-3 md:grid-cols-3">
-            {insights.map((i) => (
-              <article key={i.id} className="rounded-lg border border-border p-3">
-                <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                  {i.id === "overview" ? <Landmark className="size-4 text-primary" /> : i.severity === "high" ? <AlertTriangle className="size-4 text-red-600" /> : <TrendingUp className="size-4 text-primary" />}
-                  {i.title}
-                </p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{i.body}</p>
-              </article>
-            ))}
-          </div>
-        </SectionCard>
-
-        <div className="grid gap-4 xl:grid-cols-2">
-          <SectionCard
-            title="State scoreboard"
-            description="Claims conversion, pending stages and granted area by state"
-            action={
-              <Link to="/states" className="text-xs font-medium text-primary hover:underline">
-                View All ({states.length}) →
-              </Link>
-            }
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Link
+            to="/dashboard"
+            className="hidden sm:inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
-            <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
-              {states.slice(0, 8).map((s, idx) => {
-                const isSelected = filters.states.includes(s.name);
-                return (
-                  <div
-                    key={s.name}
-                    onClick={() => update("states", isSelected ? [] : [s.name])}
-                    className={cn(
-                      "group cursor-pointer rounded-lg border p-2.5 transition-all hover:border-primary/40 hover:bg-accent/40",
-                      isSelected
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                        : "border-border bg-card",
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
-                          #{idx + 1}
-                        </span>
-                        <span className="truncate font-semibold text-sm text-foreground group-hover:text-primary transition-colors">
-                          {s.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                          {s.titleRate.toFixed(1)}% Titled
-                        </span>
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {s.total} claims
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Tri-color conversion bar: Green (Titled), Amber (Pending), Red (Rejected) */}
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted flex">
-                      <span
-                        title={`Titled: ${s.titled} (${s.titleRate.toFixed(1)}%)`}
-                        style={{ width: `${s.titleRate}%` }}
-                        className="h-full bg-emerald-600 transition-all duration-300"
-                      />
-                      <span
-                        title={`Pending: ${s.pending}`}
-                        style={{ width: `${s.total > 0 ? (s.pending / s.total) * 100 : 0}%` }}
-                        className="h-full bg-amber-500 transition-all duration-300"
-                      />
-                      <span
-                        title={`Rejected: ${s.rejected} (${s.rejectionRate.toFixed(1)}%)`}
-                        style={{ width: `${s.rejectionRate}%` }}
-                        className="h-full bg-red-500 transition-all duration-300"
-                      />
-                    </div>
-
-                    {/* Detailed State Claims Metrics */}
-                    <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] sm:grid-cols-4 text-muted-foreground">
-                      <div>
-                        <span className="text-muted-foreground/70">Granted: </span>
-                        <span className="font-medium text-foreground">{s.titled}</span> ({(s.areaGranted ?? 0).toLocaleString()} ha)
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground/70">Pending: </span>
-                        <span className="font-medium text-foreground">{s.pending}</span> ({s.avgDaysPending}d avg)
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground/70">Rejected: </span>
-                        <span className="font-medium text-red-600">{s.rejected}</span> ({s.rejectionRate.toFixed(0)}%)
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground/70">Anomalies: </span>
-                        <span className={cn("font-medium", s.flagged > 0 ? "text-amber-600 font-semibold" : "text-foreground")}>
-                          {s.flagged} flagged
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Districts needing attention"
-            description="Highest count of rule-based flags"
-            action={
-              <Link to="/anomalies" className="text-xs font-medium text-primary hover:underline">
-                Anomalies →
-              </Link>
-            }
-          >
-            <ul className="divide-y divide-border text-sm">
-              {[...districts]
-                .sort((a, b) => b.flagged - a.flagged)
-                .slice(0, 6)
-                .map((d) => (
-                  <li key={d.name} className="flex items-center justify-between py-2">
-                    <span>
-                      <span className="font-medium text-foreground">{d.name}</span>
-                      <span className="ml-2 text-xs text-muted-foreground">{d.state}</span>
-                    </span>
-                    <span className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{d.avgDaysPending} d avg</span>
-                      <span className="rounded-full bg-red-50 px-2 py-0.5 font-medium text-red-700">
-                        {d.flagged} flagged
-                      </span>
-                    </span>
-                  </li>
-                ))}
-            </ul>
-          </SectionCard>
+            View Dashboard
+          </Link>
         </div>
+      </header>
 
-        <p className="flex items-start gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
-          <ScrollText className="mt-0.5 size-4 shrink-0" />
-          Every figure on this page is computed from a synthetic dataset of {claims.length.toLocaleString()}{" "}
-          generated claims. Nothing here constitutes a determination under the Forest Rights Act; all outputs
-          are advisory and must be verified by the competent authority.
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col items-center pt-24 pb-16 px-6 text-center">
+        <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-muted-foreground mb-8 bg-muted/50 backdrop-blur-sm">
+          <span className="flex size-2 rounded-full bg-emerald-500 mr-2"></span>
+          Now available for state-level integration
+        </div>
+        
+        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
+          Decision Support System for <span className="text-muted-foreground">Forest Rights.</span>
+        </h1>
+        
+        <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
+          Monitor claim throughput, identify spatial anomalies, and get AI-synthesized compliance briefings across states and districts in real-time.
         </p>
-      </div>
-    </AppShell>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <Link
+            to="/dashboard"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-foreground px-8 py-3.5 text-sm font-medium text-background transition-all hover:bg-foreground/90 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            View Dashboard
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
+
+        {/* Infinite Image Marquee */}
+        <div className="mt-24 w-[calc(100%+3rem)] -mx-6 flex flex-col items-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-8">
+            Deployed in districts across India
+          </p>
+          
+          <div className="relative w-full overflow-hidden flex group">
+            {/* Gradient masks for fading edges */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10"></div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10"></div>
+            
+            {/* First Marquee Track */}
+            <div className="flex shrink-0 animate-marquee gap-4 px-2 group-hover:[animation-play-state:paused]">
+              {/* Duplicate the array inside the track so it's long enough for 4K screens */}
+              {[...Array(3)].map((_, i) => (
+                <div key={`track1-${i}`} className="flex gap-4 shrink-0">
+                  <div className="w-80 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image1.jpg" alt="Deployed District 1" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-64 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image2.jpg" alt="Deployed District 2" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-96 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image3.jpg" alt="Deployed District 3" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-72 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image4.jpg" alt="Deployed District 4" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-80 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image5.jpg" alt="Deployed District 5" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Second Marquee Track (Seamless Loop) */}
+            <div className="flex shrink-0 animate-marquee gap-4 px-2 group-hover:[animation-play-state:paused]" aria-hidden="true">
+              {[...Array(3)].map((_, i) => (
+                <div key={`track2-${i}`} className="flex gap-4 shrink-0">
+                  <div className="w-80 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image1.jpg" alt="Deployed District 1" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-64 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image2.jpg" alt="Deployed District 2" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-96 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image3.jpg" alt="Deployed District 3" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-72 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image4.jpg" alt="Deployed District 4" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-80 h-48 rounded-xl bg-muted/30 border border-border flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                    <img src="/images/image5.jpg" alt="Deployed District 5" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Feature Highlights */}
+        <div className="mt-32 grid gap-8 sm:grid-cols-3 w-full max-w-5xl text-left">
+          <div className="space-y-3">
+            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50">
+              <Activity className="size-5 text-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Real-time Analytics</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Track throughput at every statutory stage, from Gram Sabha submission to final title conversion.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50">
+              <MapIcon className="size-5 text-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Spatial Anomalies</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Geographic visualization of claim hotspots and automated flags for rule-based discrepancies.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex size-10 items-center justify-center rounded-lg border border-border bg-muted/50">
+              <ShieldCheck className="size-5 text-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">AI Compliance Briefs</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Synthesized district-level advisory insights powered by LLMs for human review and action.
+            </p>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+        <p>© 2026 FRA Monitor. All rights reserved.</p>
+        <p className="mt-2 text-xs">Synthetic data used for demonstration purposes only.</p>
+      </footer>
+    </div>
   );
 }

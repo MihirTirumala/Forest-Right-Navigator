@@ -15,7 +15,7 @@ import { useFilters } from "@/lib/filter-store";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/claims", label: "FRA Claims", icon: FileText },
   { to: "/anomalies", label: "Anomalies", icon: AlertTriangle },
   { to: "/insights", label: "AI Insights", icon: Sparkles },
@@ -189,7 +189,6 @@ export function AppShell({
     <div className="flex min-h-screen flex-col bg-muted/40">
       {/* Indian National Tricolour Top Banner Ribbon */}
       <div className="h-1 w-full shrink-0 bg-gradient-to-r from-[#FF671F] via-white to-[#046A38]" />
-
       <div className="relative flex flex-1">
         {/* Mobile Backdrop */}
         <div
@@ -213,8 +212,8 @@ export function AppShell({
           <div className="w-64 flex flex-col h-full shrink-0 select-none">
             {/* Sidebar Header */}
             <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-xs">
+              <Link to="/" className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-foreground text-background shadow-xs">
                   <TreePine className="size-4" />
                 </span>
                 <div className="min-w-0">
@@ -225,7 +224,7 @@ export function AppShell({
                     Decision Support System
                   </p>
                 </div>
-              </div>
+              </Link>
 
               {/* Tiranga button inside sidebar to retract */}
               <TirangaMenuButton
@@ -241,13 +240,13 @@ export function AppShell({
                 <Link
                   key={item.to}
                   to={item.to}
-                  activeOptions={{ exact: item.to === "/" }}
+                  activeOptions={{ exact: item.to === "/dashboard" }}
                   onClick={() => {
                     if (typeof window !== "undefined" && window.innerWidth < 1024) {
                       setCollapsed(true);
                     }
                   }}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-foreground data-[status=active]:bg-primary/10 data-[status=active]:text-primary"
+                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground data-[status=active]:bg-foreground/5 data-[status=active]:text-foreground"
                 >
                   <item.icon className="size-4.5 shrink-0" />
                   <span className="truncate">{item.label}</span>

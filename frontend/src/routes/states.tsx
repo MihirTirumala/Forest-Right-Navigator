@@ -61,13 +61,24 @@ function StatesPage() {
         <SectionCard title="Title conversion vs rejection rate" description="Percent of claims in each state">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ left: -20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} unit="%" />
-                <RTooltip />
-                <Bar dataKey="Titled" fill="#166534" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Rejected" fill="#dc2626" radius={[4, 4, 0, 0]} />
+              <BarChart data={chartData} margin={{ left: -20, right: 10, top: 20 }} barGap={6}>
+                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="var(--color-border)" opacity={0.6} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={{ stroke: "var(--color-border)" }} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} unit="%" axisLine={false} tickLine={false} />
+                <RTooltip 
+                  cursor={{ fill: 'var(--color-muted)', opacity: 0.4 }}
+                  contentStyle={{ 
+                    backgroundColor: 'var(--color-card)', 
+                    borderColor: 'var(--color-border)', 
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    fontSize: '12px'
+                  }}
+                  itemStyle={{ color: 'var(--color-foreground)', fontWeight: 500 }}
+                  labelStyle={{ color: 'var(--color-muted-foreground)', marginBottom: '4px' }}
+                />
+                <Bar dataKey="Titled" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Bar dataKey="Rejected" fill="#f43f5e" opacity={0.85} radius={[4, 4, 0, 0]} maxBarSize={36} />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, useTransition, type ReactNode } from "react";
 import { CLAIMS } from "@/data/claims";
 import { applyFilters, computeKpis, EMPTY_FILTERS, type Filters } from "@/data/analytics";
 
@@ -17,6 +17,8 @@ const FilterContext = createContext<Ctx | null>(null);
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
 
+  const [, startTransition] = useTransition();
+
   const value = useMemo<Ctx>(() => {
     const claims = applyFilters(filters, CLAIMS);
     const activeCount =
@@ -30,8 +32,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     return {
       filters,
       setFilters,
-      update: (key, val) => setFilters((prev) => ({ ...prev, [key]: val })),
-      reset: () => setFilters(EMPTY_FILTERS),
+      update: (key, val) => startTransition(() => setFilters((prev) => ({ ...prev, [key]: val }))),
+      reset: () => startTransition(() => setFilters(EMPTY_FILTERS)),
       claims,
       kpis: computeKpis(claims),
       activeCount,
