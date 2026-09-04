@@ -6,10 +6,10 @@ import {
   FileText,
   LayoutDashboard,
   Map as MapIcon,
+  Moon,
   Sparkles,
+  Sun,
   TreePine,
-  Settings,
-  UserRound,
 } from "lucide-react";
 import { useFilters } from "@/lib/filter-store";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,77 @@ function TirangaMenuButton({
         {/* Bottom: India Green */}
         <span className="h-[3.5px] w-full rounded-[2px] bg-[#046A38] shadow-xs transition-all duration-200 group-hover:brightness-110" />
       </div>
+    </button>
+  );
+}
+
+/**
+ * Aesthetic Dark / Light Mode Toggle Switch
+ */
+export function ThemeToggle({ className = "" }: { className?: string }) {
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    const saved = localStorage.getItem("fra_theme");
+    if (saved !== null) return saved === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      localStorage.setItem("fra_theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("fra_theme", "light");
+    }
+  }, [isDark]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => setIsDark((prev) => !prev)}
+      aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      className={cn(
+        "group relative inline-flex h-8 w-15 items-center rounded-full p-1 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 shadow-xs border cursor-pointer select-none",
+        isDark
+          ? "bg-slate-900/90 border-emerald-500/30 hover:border-emerald-500/60 shadow-inner"
+          : "bg-emerald-50/90 border-emerald-200 hover:border-emerald-300 shadow-inner",
+        className
+      )}
+    >
+      {/* Track background icons */}
+      <div className="absolute inset-0 flex items-center justify-between px-2 text-[10px] pointer-events-none">
+        <Sun
+          className={cn(
+            "size-3.5 transition-all duration-300",
+            isDark ? "opacity-35 text-slate-500" : "opacity-0 text-amber-500 scale-90"
+          )}
+        />
+        <Moon
+          className={cn(
+            "size-3.5 transition-all duration-300",
+            isDark ? "opacity-0 text-emerald-400 scale-90" : "opacity-35 text-emerald-800"
+          )}
+        />
+      </div>
+
+      {/* Sliding Knob */}
+      <span
+        className={cn(
+          "relative z-10 flex size-6 items-center justify-center rounded-full shadow-md transition-all duration-300 ease-out",
+          isDark
+            ? "translate-x-7 bg-slate-800 text-emerald-400 border border-emerald-500/40 shadow-emerald-950/50"
+            : "translate-x-0 bg-white text-amber-500 border border-amber-200/70 shadow-amber-500/20"
+        )}
+      >
+        {isDark ? (
+          <Moon className="size-3.5 fill-emerald-400/25 transition-transform duration-300 -rotate-12 group-hover:scale-110" />
+        ) : (
+          <Sun className="size-3.5 fill-amber-500/25 transition-transform duration-300 rotate-0 group-hover:rotate-45 group-hover:scale-110" />
+        )}
+      </span>
     </button>
   );
 }
@@ -191,12 +262,7 @@ export function AppShell({
                 {claims.length.toLocaleString()} claims in view
                 {activeCount ? ` · ${activeCount} filter${activeCount > 1 ? "s" : ""}` : ""}
               </span>
-              <button className="flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:text-foreground">
-                <Settings className="size-4" />
-              </button>
-              <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <UserRound className="size-4" />
-              </span>
+              <ThemeToggle />
             </div>
           </header>
 
