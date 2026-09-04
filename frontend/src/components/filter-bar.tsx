@@ -1,4 +1,5 @@
 import { Search, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFilters } from "@/lib/filter-store";
 import { STATES } from "@/data/geo";
 import { STATUSES, type ClaimStatus, type ClaimType } from "@/data/claims";
@@ -34,6 +35,21 @@ function toggle<T>(list: T[], v: T): T[] {
 
 export function FilterBar({ compact = false }: { compact?: boolean }) {
   const { filters, update, reset, activeCount } = useFilters();
+  const [localSearch, setLocalSearch] = useState(filters.search);
+
+  useEffect(() => {
+    setLocalSearch(filters.search);
+  }, [filters.search]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localSearch !== filters.search) {
+        update("search", localSearch);
+      }
+    }, 180);
+    return () => clearTimeout(timer);
+  }, [localSearch, filters.search, update]);
+
   const districts = STATES.filter((s) => !filters.states.length || filters.states.includes(s.state)).flatMap(
     (s) => s.districts,
   );
@@ -44,11 +60,29 @@ export function FilterBar({ compact = false }: { compact?: boolean }) {
         <div className="relative min-w-56 flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
-            value={filters.search}
-            onChange={(e) => update("search", e.target.value)}
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                update("search", localSearch);
+              }
+            }}
             placeholder="Search claim ID, claimant, village, district…"
-            className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+            className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-8 text-sm outline-none focus:border-primary"
           />
+          {localSearch ? (
+            <button
+              type="button"
+              onClick={() => {
+                setLocalSearch("");
+                update("search", "");
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : null}
         </div>
 
         <select

@@ -45,6 +45,7 @@ export type Claim = {
   documentsComplete: boolean;
   lat: number;
   lng: number;
+  searchStr?: string;
 };
 
 /* ---------------- deterministic PRNG ---------------- */
@@ -198,6 +199,7 @@ function generate(): Claim[] {
       documentsComplete,
       lat: geo.center[0] + (r() - 0.5) * 0.9,
       lng: geo.center[1] + (r() - 0.5) * 0.9,
+      searchStr: `${id} ${claimant} ${village} ${district} ${state} ${community}`.toLowerCase(),
     });
   }
 
@@ -211,6 +213,7 @@ function generate(): Claim[] {
       areaGrantedHa: null,
       lat: src.lat + 0.02,
       lng: src.lng + 0.02,
+      searchStr: `${src.id}-D ${src.claimant} ${src.village} ${src.district} ${src.state} ${src.community}`.toLowerCase(),
     });
   }
 
