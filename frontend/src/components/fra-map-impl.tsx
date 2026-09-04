@@ -71,6 +71,40 @@ function Recenter({ center, zoom }: { center: [number, number]; zoom: number }) 
   return null;
 }
 
+/**
+ * Ensures zoom in/out only occurs during explicit pinch-in/pinch-out gestures
+ * (touchscreen pinch or trackpad pinch via ctrlKey), while normal vertical scrolling
+ * cleanly scrolls the dashboard page.
+ */
+function PinchOnlyZoom() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    const handleWheel = (e: WheelEvent) => {
+      // Browsers flag trackpad pinch-to-zoom gestures with ctrlKey: true
+      if (e.ctrlKey) {
+        e.preventDefault();
+        const delta = -e.deltaY;
+        if (delta > 0) {
+          map.zoomIn(0.25);
+        } else if (delta < 0) {
+          map.zoomOut(0.25);
+        }
+      }
+      // When ctrlKey is false (normal vertical mouse wheel or 2-finger scroll),
+      // we do not preventDefault or zoom, so the browser scrolls the page normally.
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [map]);
+
+  return null;
+}
+
 const DEFAULT_MAP_CENTER: [number, number] = [22.8, 80.5];
 
 export default function FraMapClient({
@@ -213,11 +247,13 @@ export default function FraMapClient({
     <MapContainer
       center={center}
       zoom={zoom}
-      scrollWheelZoom
+      scrollWheelZoom={false}
+      touchZoom={true}
       preferCanvas={true}
       style={{ height: "100%", width: "100%", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}
     >
       <Recenter center={center} zoom={zoom} />
+      <PinchOnlyZoom />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
