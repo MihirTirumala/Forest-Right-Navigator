@@ -4,12 +4,18 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+<<<<<<< HEAD
+} from "@tanstack/react-router";
+import { useEffect } from "react";
+
+=======
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
 import { FilterProvider } from "../lib/filter-store";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -36,7 +42,11 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+<<<<<<< HEAD
+  console.error("Root route error:", error);
+=======
   console.error(error);
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
@@ -49,7 +59,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
+<<<<<<< HEAD
+          {error?.message || "Something went wrong on our end. You can try refreshing or head back home."}
+=======
           Something went wrong on our end. You can try refreshing or head back home.
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -74,6 +88,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+<<<<<<< HEAD
+=======
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -102,11 +118,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
   }),
   shellComponent: RootShell,
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
+<<<<<<< HEAD
+=======
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -121,13 +140,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <FilterProvider>
+<<<<<<< HEAD
+=======
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+>>>>>>> d1519aca71fe5b10b28f6a281e8a801069302dff
         <Outlet />
       </FilterProvider>
     </QueryClientProvider>
