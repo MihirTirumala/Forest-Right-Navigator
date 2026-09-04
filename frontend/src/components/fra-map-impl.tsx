@@ -1,6 +1,6 @@
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import type { PathOptions, Layer } from "leaflet";
 import type { RegionStat } from "@/data/analytics";
 import indiaGeoData from "@/data/india_states.json";
@@ -48,11 +48,14 @@ function districtFillColor(rate: number) {
 
 function Recenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
+  const [lat, lng] = center;
   useEffect(() => {
-    map.setView(center, zoom, { animate: true });
-  }, [center, zoom, map]);
+    map.setView([lat, lng], zoom, { animate: true });
+  }, [lat, lng, zoom, map]);
   return null;
 }
+
+const DEFAULT_MAP_CENTER: [number, number] = [22.8, 80.5];
 
 export default function FraMapClient({
   states,
@@ -67,59 +70,75 @@ export default function FraMapClient({
   onSelectState: (name: string | null) => void;
   onSelectDistrict: (name: string) => void;
 }) {
+  const geoJsonRef = useRef<any>(null);
+  const selectedStateRef = useRef(selectedState);
+  selectedStateRef.current = selectedState;
+  const onSelectStateRef = useRef(onSelectState);
+  onSelectStateRef.current = onSelectState;
+  const statesRef = useRef(states);
+  statesRef.current = states;
+
   const focus = selectedState ? STATE_CENTERS[selectedState] : null;
-  const center: [number, number] = focus ? focus.center : [22.8, 80.5];
+  const center: [number, number] = focus ? focus.center : DEFAULT_MAP_CENTER;
   const zoom = focus ? focus.zoom : 5;
 
-  const getFeatureStyle = (feature: any): PathOptions => {
-    const stateName = feature?.properties?.ST_NM;
-    const stat = states.find((x) => x.name === stateName);
-    const isSel = selectedState === stateName;
+  const getFeatureStyle = useCallback(
+    (feature: any): PathOptions => {
+      const stateName = feature?.properties?.ST_NM;
+      const stat = statesRef.current.find((x) => x.name === stateName);
+      const isSel = selectedStateRef.current === stateName;
 
-    if (isSel) {
-      return {
-        color: "#022c22",
-        weight: 3.5,
-        opacity: 1,
-        fillColor: "#047857",
-        fillOpacity: 0.65,
-      };
-    }
-
-    if (stat) {
-      const rate = stat.titleRate;
-      let fill = "#34d399";
-      let border = "#059669";
-      if (rate >= 30) {
-        fill = "#047857";
-        border = "#064e3b";
-      } else if (rate >= 20) {
-        fill = "#10b981";
-        border = "#047857";
+      if (isSel) {
+        return {
+          color: "#022c22",
+          weight: 3.5,
+          opacity: 1,
+          fillColor: "#047857",
+          fillOpacity: 0.65,
+        };
       }
+
+      if (stat) {
+        const rate = stat.titleRate;
+        let fill = "#34d399";
+        let border = "#059669";
+        if (rate >= 30) {
+          fill = "#047857";
+          border = "#064e3b";
+        } else if (rate >= 20) {
+          fill = "#10b981";
+          border = "#047857";
+        }
+        return {
+          color: border,
+          weight: 1.8,
+          opacity: 0.95,
+          fillColor: fill,
+          fillOpacity: 0.42,
+        };
+      }
+
       return {
-        color: border,
-        weight: 1.8,
-        opacity: 0.95,
-        fillColor: fill,
-        fillOpacity: 0.42,
+        color: "#059669",
+        weight: 1.2,
+        opacity: 0.75,
+        fillColor: "#a7f3d0",
+        fillOpacity: 0.16,
       };
+    },
+    [],
+  );
+
+  // Smooth in-place style updates without tearing down or remounting GeoJSON layers
+  useEffect(() => {
+    if (geoJsonRef.current) {
+      geoJsonRef.current.setStyle(getFeatureStyle);
     }
+  }, [selectedState, states, getFeatureStyle]);
 
-    // Other states in India: Soft sage wash with distinct administrative border
-    return {
-      color: "#059669",
-      weight: 1.2,
-      opacity: 0.75,
-      fillColor: "#a7f3d0",
-      fillOpacity: 0.16,
-    };
-  };
-
-  const onEachFeature = (feature: any, layer: Layer) => {
+  const onEachFeature = useCallback((feature: any, layer: Layer) => {
     const stateName = feature?.properties?.ST_NM;
-    const stat = states.find((x) => x.name === stateName);
-    const isSel = selectedState === stateName;
+    const stat = statesRef.current.find((x) => x.name === stateName);
 
     const tooltipHtml = `
       <div style="font-family: ui-sans-serif, system-ui, sans-serif; min-width: 175px; padding: 2px;">
@@ -135,7 +154,7 @@ export default function FraMapClient({
             <div>Anomalies: <b style="color: ${(stat.flagged ?? 0) > 0 ? '#b45309' : '#059669'}">${stat.flagged ?? 0}</b></div>
           </div>
           <div style="margin-top: 6px; font-size: 10px; color: #047857; font-weight: 600; text-align: center; background: #ecfdf5; padding: 2px 4px; border-radius: 4px;">
-            ${isSel ? '✓ Filtered — Click to show all' : 'Click to filter dashboard'}
+            Click to filter dashboard
           </div>
         ` : `
           <div style="font-size: 11px; color: #4b5563;">Official administrative boundary. No active demo claims registered.</div>
@@ -152,7 +171,8 @@ export default function FraMapClient({
 
     layer.on({
       click: () => {
-        onSelectState(isSel ? null : stateName);
+        const cur = selectedStateRef.current;
+        onSelectStateRef.current(cur === stateName ? null : stateName);
       },
       mouseover: (e: any) => {
         const l = e.target;
@@ -161,16 +181,13 @@ export default function FraMapClient({
           color: "#022c22",
           fillOpacity: 0.65,
         });
-        if (typeof l.bringToFront === "function") {
-          l.bringToFront();
-        }
       },
       mouseout: (e: any) => {
         const l = e.target;
         l.setStyle(getFeatureStyle(feature));
       },
     });
-  };
+  }, [getFeatureStyle]);
 
   return (
     <MapContainer
@@ -181,12 +198,13 @@ export default function FraMapClient({
     >
       <Recenter center={center} zoom={zoom} />
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
       <GeoJSON
-        key={`india-geojson-${selectedState ?? "all"}-${states.length}`}
+        key="india-geojson-static"
+        ref={geoJsonRef}
         data={indiaGeoData as any}
         style={getFeatureStyle}
         onEachFeature={onEachFeature}
