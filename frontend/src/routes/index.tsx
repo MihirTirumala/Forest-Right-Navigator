@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { TreePine, ArrowRight, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
 import { ThemeToggle } from "@/components/app-shell";
+import { InteractiveTree } from "@/components/interactive-tree";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -17,8 +18,9 @@ function LandingPage() {
           </div>
           <span>FRA Monitor</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <ThemeToggle />
+          <InteractiveTree />
         </div>
       </header>
 

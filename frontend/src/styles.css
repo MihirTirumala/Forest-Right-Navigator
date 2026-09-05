@@ -195,3 +195,49 @@
 .leaflet-tooltip.fra-district-tooltip::before {
   border-top-color: #059669;
 }
+
+/* Interactive Coconut Tree Animations */
+@keyframes tree-shake {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-24deg) scale(1.18); }
+  30% { transform: rotate(20deg) scale(1.14); }
+  45% { transform: rotate(-16deg) scale(1.1); }
+  60% { transform: rotate(10deg) scale(1.06); }
+  75% { transform: rotate(-5deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes tree-breeze {
+  0%, 100% { transform: rotate(-5deg) scale(1.08); }
+  50% { transform: rotate(8deg) scale(1.08); }
+}
+
+@keyframes coconut-fall {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(0.7) rotate(0deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, 28px) scale(1.05) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 44px) scale(0.5) rotate(320deg);
+  }
+}
+
+.animate-tree-shake {
+  animation: tree-shake 0.75s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform-origin: 50% 90%;
+}
+
+.animate-tree-breeze {
+  animation: tree-breeze 2.2s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+.animate-coconut-fall {
+  animation: coconut-fall 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+

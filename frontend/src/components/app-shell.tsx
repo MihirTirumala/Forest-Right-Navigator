@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useFilters } from "@/lib/filter-store";
 import { cn } from "@/lib/utils";
+import { InteractiveTree } from "./interactive-tree";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -291,6 +292,7 @@ export function AppShell({
                 {activeCount ? ` · ${activeCount} filter${activeCount > 1 ? "s" : ""}` : ""}
               </span>
               <ThemeToggle />
+              <InteractiveTree />
             </div>
           </header>
 
