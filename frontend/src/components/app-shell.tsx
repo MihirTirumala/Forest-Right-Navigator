@@ -212,11 +212,11 @@ export function AppShell({
           <div className="relative w-64 flex flex-col h-full shrink-0 select-none overflow-hidden">
             {/* Translucent Forest Background Photo */}
             <div
-              className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-25 dark:opacity-30 mix-blend-multiply dark:mix-blend-luminosity"
+              className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-45 dark:opacity-35"
               style={{ backgroundImage: "url('/images/sidebar-forest.jpg')" }}
             />
             {/* Contrast Overlay for Clear Text Legibility */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-b from-card/85 via-card/75 to-card/90 pointer-events-none backdrop-blur-[1px]" />
+            <div className="absolute inset-0 z-0 bg-gradient-to-b from-card/55 via-card/40 to-card/60 pointer-events-none backdrop-blur-[0.5px]" />
 
             {/* Sidebar Content (layered on top) */}
             <div className="relative z-10 flex flex-col h-full min-h-0">
@@ -258,7 +258,7 @@ export function AppShell({
                         setCollapsed(true);
                       }
                     }}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 transition-all hover:bg-card/90 hover:text-foreground hover:shadow-xs hover:ring-1 hover:ring-border/40 data-[status=active]:bg-card data-[status=active]:text-foreground data-[status=active]:font-semibold data-[status=active]:shadow-sm data-[status=active]:ring-1 data-[status=active]:ring-border/80"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-foreground/85 bg-card/35 backdrop-blur-[1px] border border-border/25 transition-all hover:bg-card/90 hover:text-foreground hover:shadow-xs hover:border-border/60 data-[status=active]:bg-card data-[status=active]:text-foreground data-[status=active]:font-bold data-[status=active]:shadow-sm data-[status=active]:border-border data-[status=active]:ring-1 data-[status=active]:ring-border/50"
                   >
                     <item.icon className="size-4.5 shrink-0" />
                     <span className="truncate">{item.label}</span>
