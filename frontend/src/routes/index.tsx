@@ -16,7 +16,7 @@ function LandingPage() {
           <img
             src="/logo.png"
             alt="FRA Monitor Logo"
-            className="size-9 rounded-full object-cover shadow-xs ring-1 ring-border/20"
+            className="size-9 object-contain rounded-lg p-0.5 bg-card/80 border border-border/50 shadow-xs"
           />
           <span className="text-base tracking-tight">FRA Monitor</span>
         </div>

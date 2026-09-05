@@ -226,7 +226,7 @@ export function AppShell({
                   <img
                     src="/logo.png"
                     alt="FRA Monitor Logo"
-                    className="size-8.5 shrink-0 rounded-full object-cover shadow-xs ring-1 ring-border/20"
+                    className="size-8.5 shrink-0 object-contain rounded-lg p-0.5 bg-card/90 border border-border/50 shadow-xs"
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold leading-tight text-foreground">
