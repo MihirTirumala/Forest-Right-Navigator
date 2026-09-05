@@ -186,10 +186,10 @@ export function AppShell({
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-muted/40">
+    <div className="flex h-screen flex-col bg-muted/40 overflow-hidden">
       {/* Indian National Tricolour Top Banner Ribbon */}
       <div className="h-1 w-full shrink-0 bg-gradient-to-r from-[#FF671F] via-white to-[#046A38]" />
-      <div className="relative flex flex-1">
+      <div className="relative flex flex-1 min-h-0 overflow-hidden">
         {/* Mobile Backdrop */}
         <div
           className={cn(
@@ -202,7 +202,7 @@ export function AppShell({
         {/* Retractable Sidebar (Both Mobile & Desktop) */}
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card shadow-2xl transition-all duration-300 ease-in-out overflow-hidden lg:static lg:shadow-none shrink-0",
+            "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card shadow-2xl transition-all duration-300 ease-in-out overflow-hidden lg:static lg:h-full lg:shadow-none shrink-0",
             collapsed
               ? "w-0 -translate-x-full border-r-0 opacity-0 pointer-events-none lg:w-0 lg:translate-x-0"
               : "w-64 translate-x-0 opacity-100 border-r",
@@ -211,7 +211,7 @@ export function AppShell({
           {/* Inner fixed-width container to prevent text reflow jitter during smooth width transition */}
           <div className="w-64 flex flex-col h-full shrink-0 select-none">
             {/* Sidebar Header */}
-            <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3.5 shrink-0">
               <Link to="/" className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
                 <img
                   src="/logo.png"
@@ -237,7 +237,7 @@ export function AppShell({
             </div>
 
             {/* Navigation Items */}
-            <nav className="flex-1 space-y-1 p-3 overflow-y-auto">
+            <nav className="flex-1 space-y-1 p-3 overflow-y-auto min-h-0">
               {NAV.map((item) => (
                 <Link
                   key={item.to}
@@ -256,8 +256,8 @@ export function AppShell({
               ))}
             </nav>
 
-            {/* Sidebar Footer */}
-            <div className="space-y-2 border-t border-border p-4 text-[11px] leading-relaxed text-muted-foreground">
+            {/* Sidebar Footer - Always pinned to the bottom of the sidebar */}
+            <div className="space-y-2 border-t border-border p-4 text-[11px] leading-relaxed text-muted-foreground shrink-0 bg-card">
               <p className="flex items-center gap-1.5 font-medium text-foreground">
                 <MapIcon className="size-3.5 shrink-0" /> Synthetic demo data
               </p>
@@ -269,9 +269,9 @@ export function AppShell({
           </div>
         </aside>
 
-        {/* Main Page Area */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-3 backdrop-blur">
+        {/* Main Page Area - Independently scrollable */}
+        <div className="flex min-w-0 flex-1 flex-col h-full overflow-y-auto">
+          <header className="sticky top-0 z-30 flex shrink-0 items-center justify-between gap-4 border-b border-border bg-card/95 px-5 py-3 backdrop-blur">
             <div className="flex items-center gap-3.5 min-w-0">
               {/* Only show in header when sidebar is retracted (avoids two buttons side by side) */}
               {collapsed && (
