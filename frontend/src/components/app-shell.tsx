@@ -208,63 +208,74 @@ export function AppShell({
               : "w-64 translate-x-0 opacity-100 border-r",
           )}
         >
-          {/* Inner fixed-width container to prevent text reflow jitter during smooth width transition */}
-          <div className="w-64 flex flex-col h-full shrink-0 select-none">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between border-b border-border px-4 py-3.5 shrink-0">
-              <Link to="/" className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
-                <img
-                  src="/logo.png"
-                  alt="FRA Monitor Logo"
-                  className="size-8.5 shrink-0 rounded-full object-cover shadow-xs ring-1 ring-border/20"
-                />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold leading-tight text-foreground">
-                    FRA Monitor
-                  </p>
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    Decision Support System
-                  </p>
-                </div>
-              </Link>
+          {/* Inner fixed-width container with translucent forest background */}
+          <div className="relative w-64 flex flex-col h-full shrink-0 select-none overflow-hidden">
+            {/* Translucent Forest Background Photo */}
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center pointer-events-none opacity-25 dark:opacity-30 mix-blend-multiply dark:mix-blend-luminosity"
+              style={{ backgroundImage: "url('/images/sidebar-forest.jpg')" }}
+            />
+            {/* Contrast Overlay for Clear Text Legibility */}
+            <div className="absolute inset-0 z-0 bg-gradient-to-b from-card/85 via-card/75 to-card/90 pointer-events-none backdrop-blur-[1px]" />
 
-              {/* Tiranga button inside sidebar to retract */}
-              <TirangaMenuButton
-                onClick={toggleSidebar}
-                className="size-8.5 rounded-lg"
-                title="Retract menu"
-              />
-            </div>
-
-            {/* Navigation Items */}
-            <nav className="flex-1 space-y-1 p-3 overflow-y-auto min-h-0">
-              {NAV.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  activeOptions={{ exact: item.to === "/dashboard" }}
-                  onClick={() => {
-                    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                      setCollapsed(true);
-                    }
-                  }}
-                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground data-[status=active]:bg-foreground/5 data-[status=active]:text-foreground"
-                >
-                  <item.icon className="size-4.5 shrink-0" />
-                  <span className="truncate">{item.label}</span>
+            {/* Sidebar Content (layered on top) */}
+            <div className="relative z-10 flex flex-col h-full min-h-0">
+              {/* Sidebar Header */}
+              <div className="flex items-center justify-between border-b border-border/70 px-4 py-3.5 shrink-0 bg-card/60 backdrop-blur-xs">
+                <Link to="/" className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
+                  <img
+                    src="/logo.png"
+                    alt="FRA Monitor Logo"
+                    className="size-8.5 shrink-0 rounded-full object-cover shadow-xs ring-1 ring-border/20"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold leading-tight text-foreground">
+                      FRA Monitor
+                    </p>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      Decision Support System
+                    </p>
+                  </div>
                 </Link>
-              ))}
-            </nav>
 
-            {/* Sidebar Footer - Always pinned to the bottom of the sidebar */}
-            <div className="space-y-2 border-t border-border p-4 text-[11px] leading-relaxed text-muted-foreground shrink-0 bg-card">
-              <p className="flex items-center gap-1.5 font-medium text-foreground">
-                <MapIcon className="size-3.5 shrink-0" /> Synthetic demo data
-              </p>
-              <p>
-                All records, boundaries and scores are generated for demonstration.
-                Recommendations are advisory and require human review.
-              </p>
+                {/* Tiranga button inside sidebar to retract */}
+                <TirangaMenuButton
+                  onClick={toggleSidebar}
+                  className="size-8.5 rounded-lg"
+                  title="Retract menu"
+                />
+              </div>
+
+              {/* Navigation Items */}
+              <nav className="flex-1 space-y-1.5 p-3 overflow-y-auto min-h-0">
+                {NAV.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    activeOptions={{ exact: item.to === "/dashboard" }}
+                    onClick={() => {
+                      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                        setCollapsed(true);
+                      }
+                    }}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/80 transition-all hover:bg-card/90 hover:text-foreground hover:shadow-xs hover:ring-1 hover:ring-border/40 data-[status=active]:bg-card data-[status=active]:text-foreground data-[status=active]:font-semibold data-[status=active]:shadow-sm data-[status=active]:ring-1 data-[status=active]:ring-border/80"
+                  >
+                    <item.icon className="size-4.5 shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+
+              {/* Sidebar Footer - Always pinned to the bottom of the sidebar */}
+              <div className="space-y-2 border-t border-border/70 p-4 text-[11px] leading-relaxed text-muted-foreground shrink-0 bg-card/75 backdrop-blur-xs">
+                <p className="flex items-center gap-1.5 font-medium text-foreground">
+                  <MapIcon className="size-3.5 shrink-0" /> Synthetic demo data
+                </p>
+                <p>
+                  All records, boundaries and scores are generated for demonstration.
+                  Recommendations are advisory and require human review.
+                </p>
+              </div>
             </div>
           </div>
         </aside>
