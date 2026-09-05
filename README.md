@@ -13,7 +13,7 @@
     An end-to-end full-stack platform for monitoring Forest Rights Act (FRA) claim throughput, detecting spatial/administrative anomalies, and providing live AI-synthesized compliance briefings powered by Django REST Framework and Groq LLM API.
     <br />
     <br />
-    <a href="[INSERT_LIVE_DEPLOYED_LINK_HERE]"><strong>View Live Demo »</strong></a>
+    <a href="https://forest-right-navigator.vercel.app/"><strong>View Live Demo »</strong></a>
     ·
     <a href="https://github.com/MihirTirumala/Forest-Right-Navigator/issues">Report Bug</a>
     ·
@@ -159,6 +159,6 @@ This project was built by a dedicated team of developers.
 
 | Name | Role / Title | ID / Roll Number | GitHub |
 | :--- | :--- | :--- | :--- |
-| **Advay** | Frontend Developer & UI/UX | `[EDIT_ROLL_NO]` | `[EDIT_GITHUB_LINK]` |
-| **Mihir** | Fullstack Architecture | `[EDIT_ROLL_NO]` | [@MihirTirumala](https://github.com/MihirTirumala) |
-| **Krishanu** | Backend & Data Engineering | `[EDIT_ROLL_NO]` | `[EDIT_GITHUB_LINK]` |
+| **Advay** | Frontend Developer & UI/UX | 24BCE10305 | `[EDIT_GITHUB_LINK]` |
+| **Mihir** | Fullstack Architecture | 24MIM10075 | [@MihirTirumala](https://github.com/MihirTirumala) |
+| **Krishanu** | Backend & Data Engineering | 24BCE10942 | `[EDIT_GITHUB_LINK]` |
