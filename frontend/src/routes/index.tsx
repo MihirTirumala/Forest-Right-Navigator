@@ -32,7 +32,7 @@ function LandingPage() {
         </div>
         
         <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
-          Decision Support System for <span className="text-muted-foreground">Forest Rights.</span>
+          Decision Support System for <span className="text-emerald-700 dark:text-emerald-400">Forest Rights.</span>
         </h1>
         
         <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
