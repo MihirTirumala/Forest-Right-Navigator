@@ -9,7 +9,6 @@ import {
   Moon,
   Sparkles,
   Sun,
-  TreePine,
 } from "lucide-react";
 import { useFilters } from "@/lib/filter-store";
 import { cn } from "@/lib/utils";
@@ -214,9 +213,11 @@ export function AppShell({
             {/* Sidebar Header */}
             <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
               <Link to="/" className="flex items-center gap-2.5 min-w-0 transition-opacity hover:opacity-80">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-foreground text-background shadow-xs">
-                  <TreePine className="size-4" />
-                </span>
+                <img
+                  src="/logo.png"
+                  alt="FRA Monitor Logo"
+                  className="size-8.5 shrink-0 rounded-full object-cover shadow-xs ring-1 ring-border/20"
+                />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold leading-tight text-foreground">
                     FRA Monitor

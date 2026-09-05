@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { TreePine, ArrowRight, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
+import { ArrowRight, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
 import { ThemeToggle } from "@/components/app-shell";
 import { InteractiveTree } from "@/components/interactive-tree";
 
@@ -12,11 +12,13 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 flex flex-col font-sans">
       {/* Navigation Bar */}
       <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-border/50 bg-background/80">
-        <div className="flex items-center gap-2 font-semibold">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-foreground text-background">
-            <TreePine className="size-4" />
-          </div>
-          <span>FRA Monitor</span>
+        <div className="flex items-center gap-2.5 font-semibold">
+          <img
+            src="/logo.png"
+            alt="FRA Monitor Logo"
+            className="size-9 rounded-full object-cover shadow-xs ring-1 ring-border/20"
+          />
+          <span className="text-base tracking-tight">FRA Monitor</span>
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
