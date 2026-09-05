@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Activity, ShieldCheck, Map as MapIcon } from "lucide-react";
 import { ThemeToggle } from "@/components/app-shell";
 import { InteractiveTree } from "@/components/interactive-tree";
+import { PerchedAnimal } from "@/components/animated-animals";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -28,13 +29,66 @@ function LandingPage() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center pt-24 pb-16 px-6 text-center">
-        <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-muted-foreground mb-8 bg-muted/50 backdrop-blur-sm">
+        <div className="inline-flex items-center rounded-full border border-border px-3 py-1 text-sm text-muted-foreground mb-10 bg-muted/50 backdrop-blur-sm">
           <span className="flex size-2 rounded-full bg-emerald-500 mr-2"></span>
           Now available for state-level integration
         </div>
         
-        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6">
-          Decision Support System for <span className="text-emerald-700 dark:text-emerald-400">Forest Rights.</span>
+        <h1 className="max-w-4xl text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6 leading-tight sm:leading-tight">
+          <span className="relative inline-block">
+            <PerchedAnimal
+              emoji="🐒"
+              name="Forest Langur"
+              actionText="Eek! 🌿"
+              className="-top-7 left-0 sm:-top-9 sm:left-1"
+              idleAnimation="animate-animal-wag"
+            />
+            Decision
+          </span>{" "}
+          <span className="relative inline-block">
+            <PerchedAnimal
+              emoji="🐦"
+              name="Songbird"
+              actionText="Chirp! 🎵"
+              className="-top-6 right-1 sm:-top-8 sm:right-2"
+              idleAnimation="animate-animal-bob"
+            />
+            Support
+          </span>{" "}
+          <span className="relative inline-block">
+            <PerchedAnimal
+              emoji="🦋"
+              name="Emerald Butterfly"
+              actionText="Flutter! ✨"
+              className="-top-6 right-0 sm:-top-8 sm:right-1"
+              idleAnimation="animate-animal-flutter"
+            />
+            System
+          </span>{" "}
+          <span className="inline-block">for</span>{" "}
+          <span className="text-emerald-700 dark:text-emerald-400">
+            <span className="relative inline-block">
+              <PerchedAnimal
+                emoji="🦌"
+                name="Forest Deer"
+                actionText="Prance! 🍃"
+                className="-top-7 left-1 sm:-top-9 sm:left-2"
+                idleAnimation="animate-animal-float"
+              />
+              Forest
+            </span>{" "}
+            <span className="relative inline-block">
+              <PerchedAnimal
+                emoji="🦜"
+                name="Indian Parakeet"
+                actionText="Squawk! 💚"
+                className="-top-6 right-0 sm:-top-8 sm:right-1"
+                idleAnimation="animate-animal-bob"
+                flip
+              />
+              Rights.
+            </span>
+          </span>
         </h1>
         
         <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
