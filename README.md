@@ -54,12 +54,12 @@
 
 | Landing Page | Analytics Dashboard |
 | :---: | :---: |
-| <img src="[INSERT_LANDING_PAGE_SCREENSHOT_URL]" alt="Landing Page" width="400"> | <img src="[INSERT_DASHBOARD_SCREENSHOT_URL]" alt="Dashboard" width="400"> |
+| <img src="screenshots/landing.png" alt="Landing Page" width="400"> | <img src="screenshots/dashboard.png" alt="Dashboard" width="400"> |
 | *Seamless infinite marquee and minimalist hero design.* | *Real-time KPI metrics and status breakdowns.* |
 
 | GIS Mapping View | Anomaly Detection |
 | :---: | :---: |
-| <img src="[INSERT_MAP_SCREENSHOT_URL]" alt="Map View" width="400"> | <img src="[INSERT_ANOMALY_SCREENSHOT_URL]" alt="Anomaly Rules" width="400"> |
+| <img src="screenshots/map.png" alt="Map View" width="400"> | <img src="screenshots/anomalies.png" alt="Anomaly Rules" width="400"> |
 | *Geospatial claim clustering and interactive state tooltips.* | *Automated flags for overlapping boundaries and missing docs.* |
 
 ---
