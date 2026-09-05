@@ -13,10 +13,10 @@
     <img src="[INSERT_LOGO_IMAGE_URL_HERE]" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Forest Rights Act (FRA) Monitor</h3>
+  <h3 align="center">Forest Rights Act (FRA) Decision Support & AI Compliance Engine</h3>
 
   <p align="center">
-    A minimalist, high-performance SaaS Decision Support System for monitoring Forest Rights implementation across India.
+    An end-to-end full-stack platform for monitoring Forest Rights Act (FRA) claim throughput, detecting spatial/administrative anomalies, and providing live AI-synthesized compliance briefings powered by Django REST Framework and Groq LLM API.
     <br />
     <br />
     <a href="[INSERT_LIVE_DEPLOYED_LINK_HERE]"><strong>View Live Demo »</strong></a>
@@ -27,48 +27,36 @@
   </p>
 </div>
 
-<!-- BADGES -->
-<div align="center">
-  <img src="https://img.shields.io/badge/React-18.x-blue?style=for-the-badge&logo=react" alt="React" />
-  <img src="https://img.shields.io/badge/Vite-5.x-purple?style=for-the-badge&logo=vite" alt="Vite" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Django-Backend-092E20?style=for-the-badge&logo=django" alt="Django" />
-</div>
-
 ---
 
-## 📖 About The Project
+## 🏗️ System Architecture & Stack
 
-<!-- Place your main dashboard screenshot here -->
-[![Product Name Screen Shot][INSERT_MAIN_DASHBOARD_SCREENSHOT_URL_HERE]]([INSERT_LIVE_DEPLOYED_LINK_HERE])
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │              Vite + React 19 Frontend                  │
+               │   (Leaflet GIS Map, Recharts, TanStack Router, UI)     │
+               └──────────────────────────┬─────────────────────────────┘
+                                          │  REST HTTP / JSON
+                                          ▼
+               ┌────────────────────────────────────────────────────────┐
+               │                 Django 6.1 Backend                     │
+               │      (ORM Models, Aggregation Engine, REST API)        │
+               └──────────────┬───────────────────────────┬─────────────┘
+                              │                           │
+                              ▼                           ▼
+                     SQLite Database             Groq LLM API
+                     (db.sqlite3)           (llama-3.3-70b-versatile)
+```
 
-The **FRA Monitor** is a powerful spatial and analytical decision-support platform designed to streamline and monitor the implementation of the Forest Rights Act. Built with a sleek, minimalist SaaS aesthetic, the platform is capable of processing thousands of synthetic land claims in real-time, offering policymakers, district collectors, and state officials unparalleled insight into claim throughput and spatial anomalies.
-
-### ✨ Key Features
-
-* **Real-time Analytics Dashboard**: Instant visibility into KPI metrics including Title Grant Rates, Rejection Rates, and Pending Claim bottlenecks (`O(N)` optimized for hyper-fast client-side filtering).
-* **Geospatial Mapping (GIS)**: Interactive cluster mapping and heatmaps to visualize claim distributions across states and districts using Leaflet.
-* **Algorithmic Anomaly Detection**: Automated rule-based flagging system for overlapping boundaries, missing resolutions, or suspicious geographic claim densities.
-* **AI Compliance Briefs**: Auto-generated advisory insights outlining district-level statutory compliance and priority intervention areas.
-* **Performance-First UI**: Built on React 18 Concurrent mode (`useTransition`) with debounced inputs ensuring the UI remains perfectly responsive even when crunching massive datasets.
-
----
-
-## 🚀 Built With
-
-This project relies on a modern, high-performance tech stack:
-
-* **Frontend**: React 18, Vite, TypeScript
-* **Styling**: Tailwind CSS v4, Lucide Icons, Shadcn UI
-* **State & Routing**: TanStack Router, Custom Context Providers
-* **Mapping & Charts**: Leaflet, Recharts
-* **Backend**: Django (Python)
+* **Backend**: Django 6.1.1, Django REST Framework, SQLite DB, `django-cors-headers`, `requests`.
+* **AI Engine**: Groq Inference API (`llama-3.3-70b-versatile` / `groq/compound-mini`) with rule-based fallback.
+* **Frontend**: Vite 8, React 19, TypeScript, Leaflet GIS, Recharts, Tailwind CSS, TanStack Router.
 
 ---
 
 ## 📸 Gallery & Interface
 
-Here is a quick look at the different modules of the FRA Monitor:
+<!-- Place your screenshots here -->
 
 | Landing Page | Analytics Dashboard |
 | :---: | :---: |
@@ -82,40 +70,92 @@ Here is a quick look at the different modules of the FRA Monitor:
 
 ---
 
-## ⚙️ Getting Started
+## 📁 Repository Structure
 
-To get a local copy up and running, follow these simple steps.
+```text
+FRA/
+├── claims/                 # Django Claims App (Models, Views, Services, URLs, Tests)
+│   ├── models.py           # Claim model (IFR, CFR, CR, coordinates, dates, status)
+│   ├── services.py         # AI Audit Risk Engine & Groq Integration
+│   ├── views.py            # REST API Endpoint handlers
+│   ├── urls.py             # App URL Routing
+│   └── tests.py            # 17 Automated Unit Tests
+├── fra_backend/            # Django Core Configuration (settings, urls, wsgi)
+├── frontend/               # React Web Application (Vite + TS + Leaflet)
+│   ├── src/
+│   │   ├── lib/api-client.ts   # API Client Library for Django Backend
+│   │   ├── lib/filter-store.tsx# Global Claims Store & Filters
+│   │   └── routes/anomalies.tsx# Live Groq AI Compliance Card & Anomaly Review
+├── .env                    # Environment variables (GROQ_API_KEY)
+├── .gitignore              # Git exclusions (.env, db.sqlite3, venv, node_modules)
+├── seed.py                 # Database seeder (6 demonstration scenarios)
+└── manage.py               # Django Management CLI
+```
 
-### Prerequisites
+---
 
-* Node.js (v18+)
-* Python (3.10+)
+## ⚙️ Environment Configuration
 
-### Installation
+Create a `.env` file in the project root:
 
-1. **Clone the repo**
-   ```sh
-   git clone https://github.com/MihirTirumala/Forest-Right-Navigator.git
-   cd Forest-Right-Navigator
-   ```
+```env
+GROQ_API_KEY=gsk_your_groq_api_key_here
+```
 
-2. **Start the Frontend**
-   ```sh
-   cd frontend
-   npm install
-   npm run dev
-   ```
+> 🔒 **Security Note**: `.env` is listed in `.gitignore` so your API key will never be committed to Git.
 
-3. **Start the Backend**
-   ```sh
-   # From the project root directory
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   python manage.py runserver 8000
-   ```
+---
 
-4. Open `http://localhost:5173` in your browser.
+## 🚀 How to Run Locally
+
+### 1. Start the Django Backend Server
+```powershell
+# From the project root (c:\Users\Lenovo\Documents\FRA)
+.\venv\Scripts\python.exe manage.py runserver 8000
+```
+Backend API will be live at: `http://127.0.0.1:8000/claims/api/`
+
+---
+
+### 2. Start the React Frontend Web Dashboard
+Open a new terminal window:
+```powershell
+cd frontend
+npm run dev
+```
+Frontend App will be live at: `http://localhost:5173/`
+
+* Open **`http://localhost:5173/anomalies`** to view the **Live Groq AI District Compliance Auditor**!
+
+---
+
+## 📡 REST API Reference
+
+| Endpoint | Method | Description |
+| :--- | :---: | :--- |
+| `/claims/api/overview/` | `GET` | National aggregate metrics, status counts, & risk distribution |
+| `/claims/api/districts/` | `GET` | List of distinct states and districts with risk scores |
+| `/claims/api/claims/` | `GET` | Paginated & filterable list of individual claims |
+| `/claims/api/claims/<id>/` | `GET` | Single claim details by numeric ID or string `claim_id` |
+| `/claims/api/district-audit/` | `GET` | AI audit analysis for `?state=...&district=...` |
+| `/claims/api/audit/` | `POST` | Triggers AI audit via JSON payload `{"state": "...", "district": "..."}` |
+| `/claims/api/geojson/` | `GET` | GeoJSON FeatureCollection format for GIS map pins |
+
+---
+
+## 🧪 Running Automated Unit Tests
+
+Run the backend test suite (17 tests covering ORM models, risk math, AI fallbacks, and API views):
+
+```powershell
+.\venv\Scripts\python.exe manage.py test claims
+```
+
+Output:
+```text
+Ran 17 tests in 10.320s
+OK
+```
 
 ---
 
@@ -128,14 +168,3 @@ This project was built by a dedicated team of developers.
 | **Advay** | Frontend Developer & UI/UX | `[EDIT_ROLL_NO]` | `[EDIT_GITHUB_LINK]` |
 | **Mihir** | Fullstack Architecture | `[EDIT_ROLL_NO]` | [@MihirTirumala](https://github.com/MihirTirumala) |
 | **Krishanu** | Backend & Data Engineering | `[EDIT_ROLL_NO]` | `[EDIT_GITHUB_LINK]` |
-
----
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-<div align="center">
-  <p>Designed and built with 💻 and ☕ by the FRA Monitor Team</p>
-</div>
