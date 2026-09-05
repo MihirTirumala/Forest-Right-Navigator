@@ -22,23 +22,24 @@ export const EMPTY_FILTERS: Filters = {
   minDaysPending: 0,
 };
 
-const searchCache = new WeakMap<Claim, string>();
-
 export function applyFilters(f: Filters, claims: Claim[] = CLAIMS): Claim[] {
   const q = f.search.trim().toLowerCase();
+  const hasStates = f.states.length > 0;
+  const hasDistricts = f.districts.length > 0;
+  const hasClaimTypes = f.claimTypes.length > 0;
+  const hasStatuses = f.statuses.length > 0;
+  const minDays = f.minDaysPending;
+  const onlyFlagged = f.onlyFlagged;
+
   return claims.filter((c) => {
-    if (f.states.length && !f.states.includes(c.state)) return false;
-    if (f.districts.length && !f.districts.includes(c.district)) return false;
-    if (f.claimTypes.length && !f.claimTypes.includes(c.claimType)) return false;
-    if (f.statuses.length && !f.statuses.includes(c.status)) return false;
-    if (f.minDaysPending && c.daysInCurrentStage < f.minDaysPending) return false;
-    if (f.onlyFlagged && !FLAGS_BY_CLAIM[c.id]) return false;
+    if (hasStates && !f.states.includes(c.state)) return false;
+    if (hasDistricts && !f.districts.includes(c.district)) return false;
+    if (hasClaimTypes && !f.claimTypes.includes(c.claimType)) return false;
+    if (hasStatuses && !f.statuses.includes(c.status)) return false;
+    if (minDays && c.daysInCurrentStage < minDays) return false;
+    if (onlyFlagged && !FLAGS_BY_CLAIM[c.id]) return false;
     if (q) {
-      let hay = searchCache.get(c);
-      if (!hay) {
-        hay = `${c.id} ${c.claimant} ${c.village} ${c.district} ${c.state} ${c.community}`.toLowerCase();
-        searchCache.set(c, hay);
-      }
+      const hay = c.searchStr ?? `${c.id} ${c.claimant} ${c.village} ${c.district} ${c.state} ${c.community}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -59,34 +60,58 @@ export type Kpis = {
 };
 
 export function computeKpis(claims: Claim[]): Kpis {
-  let titled = 0, rejected = 0, pending = 0, overdue = 0, flagged = 0;
-  let areaGranted = 0;
-  let pendingDaysSum = 0;
+  const totalCount = claims.length;
+  if (!totalCount) {
+    return {
+      total: 0,
+      titled: 0,
+      rejected: 0,
+      pending: 0,
+      titleRate: 0,
+      rejectionRate: 0,
+      avgDaysPending: 0,
+      areaGranted: 0,
+      flagged: 0,
+      overdue: 0,
+    };
+  }
 
-  for (let i = 0; i < claims.length; i++) {
-    const c = claims[i];
-    if (c.status === "Title Granted") titled++;
-    else if (c.status === "Rejected") rejected++;
-    else {
-      pending++;
+  let titled = 0;
+  let rejected = 0;
+  let pendingDaysSum = 0;
+  let pendingCount = 0;
+  let overdue = 0;
+  let areaGranted = 0;
+  let flagged = 0;
+
+  for (let i = 0; i < totalCount; i++) {
+    const c = claims[i]!;
+    if (c.status === "Title Granted") {
+      titled++;
+      if (c.areaGrantedHa) areaGranted += c.areaGrantedHa;
+    } else if (c.status === "Rejected") {
+      rejected++;
+    } else {
+      pendingCount++;
       pendingDaysSum += c.daysInCurrentStage;
       if (c.daysInCurrentStage > 365) overdue++;
     }
-    areaGranted += c.areaGrantedHa ?? 0;
-    if (FLAGS_BY_CLAIM[c.id]) flagged++;
+    if (FLAGS_BY_CLAIM[c.id]) {
+      flagged++;
+    }
   }
 
-  const total = claims.length || 1;
-  const avgDaysPending = pending ? pendingDaysSum / pending : 0;
+  const pending = totalCount - titled - rejected;
+  const avgDaysPending = pendingCount > 0 ? Math.round(pendingDaysSum / pendingCount) : 0;
 
   return {
-    total: claims.length,
+    total: totalCount,
     titled,
     rejected,
     pending,
-    titleRate: (titled / total) * 100,
-    rejectionRate: (rejected / total) * 100,
-    avgDaysPending: Math.round(avgDaysPending),
+    titleRate: (titled / totalCount) * 100,
+    rejectionRate: (rejected / totalCount) * 100,
+    avgDaysPending,
     areaGranted: Math.round(areaGranted),
     flagged,
     overdue,
@@ -94,15 +119,14 @@ export function computeKpis(claims: Claim[]): Kpis {
 }
 
 export function statusBreakdown(claims: Claim[]) {
-  const counts = new Map<string, number>();
-  for (const c of claims) counts.set(c.status, (counts.get(c.status) || 0) + 1);
-  return STATUSES.map((s) => ({ status: s, count: counts.get(s) || 0 }));
+  return STATUSES.map((s) => ({ status: s, count: claims.filter((c) => c.status === s).length }));
 }
 
 export function typeBreakdown(claims: Claim[]) {
-  const counts = new Map<string, number>();
-  for (const c of claims) counts.set(c.claimType, (counts.get(c.claimType) || 0) + 1);
-  return (["IFR", "CR", "CFR"] as ClaimType[]).map((t) => ({ type: t, count: counts.get(t) || 0 }));
+  return (["IFR", "CR", "CFR"] as ClaimType[]).map((t) => ({
+    type: t,
+    count: claims.filter((c) => c.claimType === t).length,
+  }));
 }
 
 export function monthlyTrend(claims: Claim[]) {
@@ -152,16 +176,23 @@ function summarize(name: string, state: string, center: [number, number], claims
 
 export function districtStats(claims: Claim[]): RegionStat[] {
   const byDistrict = new Map<string, Claim[]>();
-  for (const c of claims) {
-    let arr = byDistrict.get(c.district);
-    if (!arr) { arr = []; byDistrict.set(c.district, arr); }
-    arr.push(c);
+  for (let i = 0; i < claims.length; i++) {
+    const c = claims[i]!;
+    let list = byDistrict.get(c.district);
+    if (!list) {
+      list = [];
+      byDistrict.set(c.district, list);
+    }
+    list.push(c);
   }
+
   const out: RegionStat[] = [];
   for (const s of STATES) {
     for (const d of s.districts) {
       const sub = byDistrict.get(d.district);
-      if (sub && sub.length) out.push(summarize(d.district, s.state, d.center, sub));
+      if (sub && sub.length) {
+        out.push(summarize(d.district, s.state, d.center, sub));
+      }
     }
   }
   return out.sort((a, b) => b.total - a.total);
@@ -169,14 +200,24 @@ export function districtStats(claims: Claim[]): RegionStat[] {
 
 export function stateStats(claims: Claim[]): RegionStat[] {
   const byState = new Map<string, Claim[]>();
-  for (const c of claims) {
-    let arr = byState.get(c.state);
-    if (!arr) { arr = []; byState.set(c.state, arr); }
-    arr.push(c);
+  for (let i = 0; i < claims.length; i++) {
+    const c = claims[i]!;
+    let list = byState.get(c.state);
+    if (!list) {
+      list = [];
+      byState.set(c.state, list);
+    }
+    list.push(c);
   }
-  return STATES.map((s) => summarize(s.state, s.state, s.center, byState.get(s.state) || []))
-    .filter((r) => r.total > 0)
-    .sort((a, b) => b.titleRate - a.titleRate);
+
+  const out: RegionStat[] = [];
+  for (const s of STATES) {
+    const sub = byState.get(s.state);
+    if (sub && sub.length) {
+      out.push(summarize(s.state, s.state, s.center, sub));
+    }
+  }
+  return out.sort((a, b) => b.titleRate - a.titleRate);
 }
 
 export function performanceBand(titleRate: number) {

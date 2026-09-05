@@ -45,6 +45,7 @@ export type Claim = {
   documentsComplete: boolean;
   lat: number;
   lng: number;
+  searchStr?: string;
 };
 
 /* ---------------- deterministic PRNG ---------------- */
@@ -176,16 +177,21 @@ function generate(): Claim[] {
     const surveyCompleted = sloppy ? r() > 0.45 : r() > 0.12;
     const documentsComplete = sloppy ? r() > 0.4 : r() > 0.1;
 
+    const id = `FRA/${geo.state.slice(0, 2).toUpperCase()}/${new Date(submitted).getFullYear()}/${String(1000 + i)}`;
+    const village = `${pick(r, VILLAGE_A)}${pick(r, VILLAGE_B)}`;
+    const block = `${pick(r, VILLAGE_A)} Block`;
+    const community = pick(r, COMMUNITIES);
+
     claims.push({
-      id: `FRA/${geo.state.slice(0, 2).toUpperCase()}/${new Date(submitted).getFullYear()}/${String(1000 + i)}`,
+      id,
       claimant,
       gender: female ? "F" : "M",
       claimType,
       state: geo.state,
       district: geo.district,
-      block: `${pick(r, VILLAGE_A)} Block`,
-      village: `${pick(r, VILLAGE_A)}${pick(r, VILLAGE_B)}`,
-      community: pick(r, COMMUNITIES),
+      block,
+      village,
+      community,
       areaClaimedHa,
       areaGrantedHa,
       status,
@@ -198,6 +204,7 @@ function generate(): Claim[] {
       documentsComplete,
       lat: geo.center[0] + (r() - 0.5) * 0.9,
       lng: geo.center[1] + (r() - 0.5) * 0.9,
+      searchStr: `${id} ${claimant} ${village} ${geo.district} ${geo.state} ${community}`.toLowerCase(),
     });
   }
 
@@ -211,6 +218,7 @@ function generate(): Claim[] {
       areaGrantedHa: null,
       lat: src.lat + 0.02,
       lng: src.lng + 0.02,
+      searchStr: `${src.id}-D ${src.claimant} ${src.village} ${src.district} ${src.state} ${src.community}`.toLowerCase(),
     });
   }
 
