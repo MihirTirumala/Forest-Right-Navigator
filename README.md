@@ -1,17 +1,11 @@
 <!-- PROJECT LOGO & BANNER -->
 <br />
 <div align="center">
-  <!-- Place your Banner Image URL here -->
   <a href="https://github.com/MihirTirumala/Forest-Right-Navigator">
-    <img src="[INSERT_BANNER_IMAGE_URL_HERE]" alt="Project Banner" width="100%">
+    <img src="frontend/public/images/logo.png" alt="Forest Rights Act Monitor Logo" width="300" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
   </a>
   <br />
   <br />
-  
-  <!-- Place your Logo URL here -->
-  <a href="https://github.com/MihirTirumala/Forest-Right-Navigator">
-    <img src="[INSERT_LOGO_IMAGE_URL_HERE]" alt="Logo" width="80" height="80">
-  </a>
 
   <h3 align="center">Forest Rights Act (FRA) Decision Support & AI Compliance Engine</h3>
 
