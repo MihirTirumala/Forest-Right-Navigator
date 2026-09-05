@@ -159,6 +159,6 @@ This project was built by a dedicated team of developers.
 
 | Name | Role / Title | ID / Roll Number | GitHub |
 | :--- | :--- | :--- | :--- |
-| **Advay** | Frontend Developer & UI/UX | 24BCE10305 | `[EDIT_GITHUB_LINK]` |
+| **Advay** | Frontend Developer & UI/UX | 24BCE10305 | [@advay-demo](https://github.com/advay-demo) |
 | **Mihir** | Fullstack Architecture | 24MIM10075 | [@MihirTirumala](https://github.com/MihirTirumala) |
-| **Krishanu** | Backend & Data Engineering | 24BCE10942 | `[EDIT_GITHUB_LINK]` |
+| **Krishanu** | Backend & Data Engineering | 24BCE10942 | [@krishanu26849](https://github.com/krishanu26849) |
